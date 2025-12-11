@@ -23,57 +23,41 @@ endif
 #        INCLUDES                      #
 ########################################
 
-# Include ledger`s standart mandatory config
+# Include ledger`s standard mandatory config
 include config.mk
 
-ifneq ($(filter $(MAKECMDGOALS),help clean all_bin),) 
-    # Do not include for ledger-native makefiles if running custom maketargets
-else
-    # Include project/compiler definitions and SDK paths
+ifdef TARGET
     include $(BOLOS_SDK)/Makefile.defines
-    
-    # Include standard rules for building Ledger apps
     include $(BOLOS_SDK)/Makefile.standard_app
-    
-    # Include target-specific build rules (e.g., nanos, nanox, stax)
     include $(BOLOS_SDK)/Makefile.target
 endif
+
+
+#######################################
+#       LOCAL VARIABLES               #
+#######################################
+# List of supported ledger targets
+LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
 
 #######################################
 #       TARGETS                       #
 #######################################
+.PHONY: clean, all, help, debug $(LEDGER_TARGETS)
 
-
-# List of suported ledger targets
-LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
-
-.PHONY: clean, all, help
+# Just prin avaliable targets
 help:
 	@echo "Available targets:"
 	@echo clean, debug, all, ${LEDGER_TARGETS}
 
+# Clean build dirs
+clean:
+	rm -rf build bin debug
 
-
-
-
-# "all" собирает все таргеты из списка
+# Build .elf for all all ledger targets
 all_bin: $(LEDGER_TARGETS)
 
+# Build certain ledger target (helper to "make nanosp" instead of "make TARGET=nanosp")
 $(LEDGER_TARGETS):
 	@echo "Building for TARGET=$@"
 	$(MAKE) TARGET=$@
 
-.PHONY: clean debug $(LEDGER_TARGETS)
-
-# ---- DEBUG MULTI-TARGET ----
-
-# Если среди целей есть один из Ledger targets → это TARGET
-TARGET := $(filter $(LEDGER_TARGETS),$(MAKECMDGOALS))
-
-# Цель debug требует, чтобы TARGET был выбран
-debug:
-ifeq ($(TARGET),)
-	$(error Please specify one of: $(LEDGER_TARGETS))
-endif
-	@echo "Debug build for TARGET=$(TARGET)"
-	$(MAKE) DEBUG=1 TARGET=$(TARGET) app.elf
