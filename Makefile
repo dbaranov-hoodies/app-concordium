@@ -19,101 +19,61 @@ ifeq ($(BOLOS_SDK),)
 $(error Environment variable BOLOS_SDK is not set)
 endif
 
-include $(BOLOS_SDK)/Makefile.defines
-
 ########################################
-#        Mandatory configuration       #
+#        INCLUDES                      #
 ########################################
-# Application name
-APPNAME = "Concordium"
 
-# Application version
-APPVERSION_M = 5
-APPVERSION_N = 3
-APPVERSION_P = 2
-APPVERSION = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
+# Include ledger`s standart mandatory config
+include config.mk
 
-DEFINES += APPVERSION=\"$(APPVERSION)\"
-# Make the version parameters accessible from the app.
-DEFINES += APPVERSION_M=$(APPVERSION_M)
-DEFINES += APPVERSION_N=$(APPVERSION_N)
-DEFINES += APPVERSION_P=$(APPVERSION_P)
+ifneq ($(filter $(MAKECMDGOALS),help clean all_bin),) 
+    # Do not include for ledger-native makefiles if running custom maketargets
+else
+    # Include project/compiler definitions and SDK paths
+    include $(BOLOS_SDK)/Makefile.defines
+    
+    # Include standard rules for building Ledger apps
+    include $(BOLOS_SDK)/Makefile.standard_app
+    
+    # Include target-specific build rules (e.g., nanos, nanox, stax)
+    include $(BOLOS_SDK)/Makefile.target
+endif
 
-# Application source files
-APP_SOURCE_PATH += src
+#######################################
+#       TARGETS                       #
+#######################################
 
-# Application icons following guidelines:
-# https://developers.ledger.com/docs/embedded-app/design-requirements/#device-icon
-ICON_NANOS = icons/app_concordium_16px.gif
-ICON_NANOX = icons/app_concordium_14px.gif
-ICON_NANOSP = icons/app_concordium_14px.gif
-ICON_STAX = icons/app_concordium_32px.gif
-ICON_FLEX = icons/app_concordium_40px.gif
-ICON_APEX_P = icons/app_concordium_32px.png
 
-# Application allowed derivation curves.
-# Possibles curves are: secp256k1, secp256r1, ed25519 and bls12381g1
-# If your app needs it, you can specify multiple curves by using:
-# `CURVE_APP_LOAD_PARAMS = <curve1> <curve2>`
-CURVE_APP_LOAD_PARAMS = ed25519
+# List of suported ledger targets
+LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
 
-# Application allowed derivation paths.
-# You should request a specific path for your app.
-# This serve as an isolation mechanism.
-# Most application will have to request a path according to the BIP-0044
-# and SLIP-0044 standards.
-# If your app needs it, you can specify multiple path by using:
-# `PATH_APP_LOAD_PARAMS = "44'/1'" "45'/1'"`
-# purpose=coin(44) / coin_type=Testnet(1)
-PATH_APP_LOAD_PARAMS = "44'/919'" "1105'/0'"
+.PHONY: clean, all, help
+help:
+	@echo "Available targets:"
+	@echo clean, debug, all, ${LEDGER_TARGETS}
 
-# Setting to allow building variant applications
-# - <VARIANT_PARAM> is the name of the parameter which should be set
-#   to specify the variant that should be build.
-# - <VARIANT_VALUES> a list of variant that can be build using this app code.
-#   * It must at least contains one value.
-#   * Values can be the app ticker or anything else but should be unique.
-VARIANT_PARAM = COIN
-VARIANT_VALUES = CCD
 
-# Enabling DEBUG flag will enable PRINTF and disable optimizations
-#DEBUG = 1
 
-########################################
-#     Application custom permissions   #
-########################################
-# See SDK `include/appflags.h` for the purpose of each permission
-#HAVE_APPLICATION_FLAG_DERIVE_MASTER = 1
-#HAVE_APPLICATION_FLAG_GLOBAL_PIN = 1
-#HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
-#HAVE_APPLICATION_FLAG_LIBRARY = 1
 
-########################################
-# Application communication interfaces #
-########################################
-ENABLE_BLUETOOTH = 1
-#ENABLE_NFC = 1
 
-########################################
-#         NBGL custom features         #
-########################################
-ENABLE_NBGL_QRCODE = 1
-#ENABLE_NBGL_KEYBOARD = 1
-#ENABLE_NBGL_KEYPAD = 1
+# "all" собирает все таргеты из списка
+all_bin: $(LEDGER_TARGETS)
 
-########################################
-#          Features disablers          #
-########################################
-# These advanced settings allow to disable some feature that are by
-# default enabled in the SDK `Makefile.standard_app`.
-#DISABLE_STANDARD_APP_FILES = 1
-#DISABLE_DEFAULT_IO_SEPROXY_BUFFER_SIZE = 1 # To allow custom size declaration
-#DISABLE_STANDARD_APP_DEFINES = 1 # Will set all the following disablers
-#DISABLE_STANDARD_SNPRINTF = 1
-#DISABLE_STANDARD_USB = 1
-#DISABLE_STANDARD_WEBUSB = 1
-#DISABLE_STANDARD_BAGL_UX_FLOW = 1
-#DISABLE_DEBUG_LEDGER_ASSERT = 1
-#DISABLE_DEBUG_THROW = 1
+$(LEDGER_TARGETS):
+	@echo "Building for TARGET=$@"
+	$(MAKE) TARGET=$@
 
-include $(BOLOS_SDK)/Makefile.standard_app
+.PHONY: clean debug $(LEDGER_TARGETS)
+
+# ---- DEBUG MULTI-TARGET ----
+
+# Если среди целей есть один из Ledger targets → это TARGET
+TARGET := $(filter $(LEDGER_TARGETS),$(MAKECMDGOALS))
+
+# Цель debug требует, чтобы TARGET был выбран
+debug:
+ifeq ($(TARGET),)
+	$(error Please specify one of: $(LEDGER_TARGETS))
+endif
+	@echo "Debug build for TARGET=$(TARGET)"
+	$(MAKE) DEBUG=1 TARGET=$(TARGET) app.elf
