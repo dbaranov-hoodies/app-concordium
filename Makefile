@@ -44,14 +44,14 @@ LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
 #######################################
 .PHONY: clean, all, help, debug $(LEDGER_TARGETS)
 
-# Just prin avaliable targets
+# Just print available targets
 help:
 	@echo "Available targets:"
 	@echo clean, debug, all, ${LEDGER_TARGETS}
 
-# Clean build dirs
-clean:
-	rm -rf build bin debug
+# # Clean build dirs
+# clean:
+# 	rm -rf build bin debug
 
 # Build .elf for all all ledger targets
 all_bin: $(LEDGER_TARGETS)
