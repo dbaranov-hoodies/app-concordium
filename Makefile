@@ -44,6 +44,9 @@ LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
 #######################################
 .PHONY: clean_local, all, help, debug $(LEDGER_TARGETS)
 
+.PHONY: default
+default:
+
 # Just print available targets
 help:
 	@echo "Available targets:"
