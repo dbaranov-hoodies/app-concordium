@@ -47,7 +47,9 @@ LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
 # The one used by a pipeline
 default:
 ifdef TARGET
-	@$(MAKE) TARGET=$(TARGET)
+	include $(BOLOS_SDK)/Makefile.defines
+	include $(BOLOS_SDK)/Makefile.standard_app
+	include $(BOLOS_SDK)/Makefile.target
 else
 	@echo "No TARGET specified. Run 'make TARGET=(one of [$(LEDGER_TARGETS)])'."
 endif
