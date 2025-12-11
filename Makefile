@@ -42,9 +42,9 @@ LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
 #######################################
 #       TARGETS                       #
 #######################################
-.PHONY: clean_local, all, help, debug $(LEDGER_TARGETS)
+.PHONY:default, clean_local, all, help, debug $(LEDGER_TARGETS)
 
-.PHONY: default
+# The one used by a pipeline
 default:
 ifdef TARGET
 	@$(MAKE) TARGET=$(TARGET)
