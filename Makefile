@@ -26,11 +26,11 @@ endif
 # Include ledger`s standard mandatory config
 include config.mk
 
-ifdef TARGET
+#ifdef TARGET
     include $(BOLOS_SDK)/Makefile.defines
     include $(BOLOS_SDK)/Makefile.standard_app
     include $(BOLOS_SDK)/Makefile.target
-endif
+#endif
 
 
 #######################################
@@ -46,9 +46,6 @@ LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
 
 # The one used by a pipeline
 default:
-	include $(BOLOS_SDK)/Makefile.defines
-	include $(BOLOS_SDK)/Makefile.standard_app
-	include $(BOLOS_SDK)/Makefile.target
 
 # Just print available targets
 help:
