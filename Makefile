@@ -26,41 +26,7 @@ endif
 # Include ledger`s standard mandatory config
 include config.mk
 
-#ifdef TARGET
-    include $(BOLOS_SDK)/Makefile.defines
-    include $(BOLOS_SDK)/Makefile.standard_app
-    include $(BOLOS_SDK)/Makefile.target
-#endif
-
-
-#######################################
-#       LOCAL VARIABLES               #
-#######################################
-# List of supported ledger targets
-LEDGER_TARGETS :=  nanox nanos2 stax flex apex_p apex_m
-
-#######################################
-#       TARGETS                       #
-#######################################
-.PHONY:default, clean_local, all, help, debug $(LEDGER_TARGETS)
-
-# The one used by a pipeline
-default:
-
-# Just print available targets
-help:
-	@echo "Available targets:"
-	@echo clean_local, debug, all, ${LEDGER_TARGETS}
-
-# Clean build dirs
-clean_local:
-	rm -rf build bin debug
-
-# Build .elf for all all ledger targets
-all_bin: $(LEDGER_TARGETS)
-
-# Build certain ledger target (helper to "make nanosp" instead of "make TARGET=nanosp")
-$(LEDGER_TARGETS):
-	@echo "Building for TARGET=$@"
-	$(MAKE) TARGET=$@
+include $(BOLOS_SDK)/Makefile.defines
+include $(BOLOS_SDK)/Makefile.standard_app
+include $(BOLOS_SDK)/Makefile.target
 
