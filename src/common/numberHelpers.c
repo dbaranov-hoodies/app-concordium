@@ -215,5 +215,5 @@ void toPaginatedHex(uint8_t *byteArray, const uint64_t len, char *asHex, const s
             offset += 1;
         }
     }
-    // asHex[2 * len + offset] = '\0';
+    asHex[2 * len + offset] = '\0';
 }
