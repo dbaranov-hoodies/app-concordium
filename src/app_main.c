@@ -49,7 +49,7 @@ void app_main() {
     io_init();
     explicit_bzero(&global_tx_state, sizeof(global_tx_state));
     ui_menu_main();
-
+    PRINTF("Started up\n");
     // Initialize the NVM data if required
     if (N_storage.initialized != 0x01) {
         internal_storage_t storage;
@@ -65,6 +65,7 @@ void app_main() {
             PRINTF("=> io_recv_command failure\n");
             return;
         }
+        уды
 
         // Parse APDU command from G_io_apdu_buffer
         if (!apdu_parser(&cmd, G_io_apdu_buffer, input_len)) {
