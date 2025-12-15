@@ -1,5 +1,8 @@
-#pragma once
+#ifndef SIGN_CREDENTIAL_DEPLOYMENT_H
+#define SIGN_CREDENTIAL_DEPLOYMENT_H
 
+#include <lcx_sha256.h>
+#include "time.h"
 void processNextVerificationKey(void);
 
 void handleSignCredentialDeployment(uint8_t *dataBuffer,
@@ -74,3 +77,5 @@ typedef struct {
     protocolState_t state;
     bool showIntro;
 } signCredentialDeploymentContext_t;
+
+#endif  // SIGN_CREDENTIAL_DEPLOYMENT_H

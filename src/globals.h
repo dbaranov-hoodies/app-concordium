@@ -20,13 +20,14 @@
 #include <glyphs.h>
 #include <limits.h>
 #include <format.h>
+#include <lcx_hmac.h>
 
 #ifdef HAVE_NBGL
 #include <nbgl_use_case.h>
 #endif
 
 #include "display.h"
-#include "handler.h"
+
 #include "menu.h"
 #include "util.h"
 #include "sign.h"
@@ -58,11 +59,6 @@
 
 #define ACCOUNT_TRANSACTION_HEADER_LENGTH 60
 #define UPDATE_HEADER_LENGTH              28
-
-/**
- * Instruction class of the Concordium application.
- */
-#define CLA 0xE0
 
 /**
  * Length of APPNAME variable in the Makefile.
@@ -194,7 +190,6 @@ enum {
     // Error codes
     ERROR_NO_APDU_RECEIVED = 0x6982,
     ERROR_REJECTED_BY_USER = 0x6985,
-    ERROR_INVALID_CLA = 0x6E00,
 
     ERROR_INVALID_STATE = 0x6B01,
     ERROR_INVALID_PATH = 0x6B02,

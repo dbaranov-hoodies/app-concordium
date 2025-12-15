@@ -1,4 +1,4 @@
-# Verify Address
+# Verify Address {#doc_verify_address}
 
 Given an identity index and a credential counter/account index this function displays the associated account address.
 

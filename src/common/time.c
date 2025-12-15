@@ -1,13 +1,15 @@
 /*
  *  The code in the function secondsToTm is from the musl project
  * (https://git.musl-libc.org/cgit/musl/), specifically taken from
- * https://git.musl-libc.org/cgit/musl/tree/src/time/__secs_to_tm.c. The code has been edited
- * slightly in the following way:
+ * https://git.musl-libc.org/cgit/musl/tree/src/time/__secs_to_tm.c. The code
+ * has been edited slightly in the following way:
  *   - renamed the method to 'seconds_to_tm'.
- *   - since we do not have access to <time.h> we use a local version with a copy
- *     of the required 'tm' struct.
- *  The musl LICENSE is provided in licenses/musl-MIT.txt
+ *   - since we do not have access to <time.h> we use a local version with a
+ * copy of the required 'tm' struct. The musl LICENSE is provided in
+ * licenses/musl-MIT.txt
  */
+#include "time.h"
+
 #include "globals.h"
 
 /* 2000-03-01 (mod 400 year, immediately after feb29 */
@@ -15,15 +17,16 @@
 
 #define DAYS_PER_400Y (365 * 400 + 97)
 #define DAYS_PER_100Y (365 * 100 + 24)
-#define DAYS_PER_4Y   (365 * 4 + 1)
+#define DAYS_PER_4Y (365 * 4 + 1)
 
-int secondsToTm(long long t, tm *tm) {
+int secondsToTm(long long t, tm* tm) {
     long long days, secs;
     int remdays, remsecs, remyears;
     int qc_cycles, c_cycles, q_cycles;
     int years, months;
     int wday, yday, leap;
-    static const char days_in_month[] = {31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 29};
+    static const char days_in_month[] = {31, 30, 31, 30, 31, 31,
+                                         30, 31, 30, 31, 31, 29};
 
     /* Reject time_t values whose year would overflow int */
     if (t < INT_MIN * 31622400LL || t > INT_MAX * 31622400LL) return -1;
@@ -64,7 +67,8 @@ int secondsToTm(long long t, tm *tm) {
 
     years = remyears + 4 * q_cycles + 100 * c_cycles + 400 * qc_cycles;
 
-    for (months = 0; days_in_month[months] <= remdays; months++) remdays -= days_in_month[months];
+    for (months = 0; days_in_month[months] <= remdays; months++)
+        remdays -= days_in_month[months];
 
     if (years > INT_MAX - 100 || years < INT_MIN + 100) return -1;
 
@@ -89,7 +93,7 @@ int secondsToTm(long long t, tm *tm) {
  * Helper function for prepending numbers that are
  * less than 10 with a '0', so that 5 results in 05.
  */
-int prefixWithZero(uint8_t *dst, size_t dstLength, int value) {
+int prefixWithZero(uint8_t* dst, size_t dstLength, int value) {
     if (value < 10) {
         if (dstLength < 1) {
             THROW(ERROR_BUFFER_OVERFLOW);
@@ -100,7 +104,7 @@ int prefixWithZero(uint8_t *dst, size_t dstLength, int value) {
     return 0;
 }
 
-int timeToDisplayText(tm time, uint8_t *dst, size_t dstLength) {
+int timeToDisplayText(tm time, uint8_t* dst, size_t dstLength) {
     int offset = 0;
 
     // Check if we have enough space for full timestamp

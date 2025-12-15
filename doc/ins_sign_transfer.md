@@ -1,4 +1,4 @@
-# Transfer transaction
+# Transfer transaction  {#doc_sign_transfer}
 
 A transaction to transfer GTU from one account to another.
 

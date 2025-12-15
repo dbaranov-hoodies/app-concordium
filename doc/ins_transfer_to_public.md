@@ -1,4 +1,4 @@
-# Transfer to public
+# Transfer to public   {#doc_transfer_to_public}
 
 A transaction for transferring an encrypted amount to the public balance of the account.
 

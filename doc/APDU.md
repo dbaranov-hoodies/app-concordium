@@ -1,4 +1,4 @@
-# Application Protocol Data Unit (APDU)
+# Application Protocol Data Unit (APDU) (#doc get_public_key)
 
 The communication protocol used by this app to exchange [APDU](https://en.wikipedia.org/wiki/Smart_card_application_protocol_data_unit) is very close to [ISO 7816-4](https://www.iso.org/standard/77180.html) with a few differences:
 
@@ -26,3 +26,7 @@ Status words tend to be similar to common [APDU responses](https://www.eftlab.co
 | ---------- | -------------- | ---------------------------------------------------------------------------- |
 | RData      | var            | Response data (can be empty)                                                 |
 | SW         | 2              | Status word containing command processing status (e.g. `0x9000` for success) |
+
+# Command APDU
+
+The APDU instruction codes are defined in the `command_e` enum: @ref command_e
