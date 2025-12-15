@@ -12,6 +12,10 @@ tests/snapshots-tmp/
 unit-tests/build/
 unit-tests/coverage/
 unit-tests/coverage.info
+unit-tests/CMakeCache.txt
+unit-tests/DartConfiguration.tcl
+unit-tests/CMakeFiles/
+
 
 # Fuzzing
 fuzzing/build/

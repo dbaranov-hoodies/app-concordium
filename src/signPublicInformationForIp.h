@@ -1,6 +1,6 @@
 #pragma once
 
-#import "buffer.h"
+#include "buffer.h"
 
 /**
  * Handles the signing flow, including updating the display, for the signing
