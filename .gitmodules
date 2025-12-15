@@ -1,0 +1,3 @@
+[submodule "ledger-secure-sdk"]
+	path = ledger-secure-sdk
+	url = https://github.com/LedgerHQ/ledger-secure-sdk
