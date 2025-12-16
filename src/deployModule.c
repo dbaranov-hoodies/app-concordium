@@ -4,6 +4,7 @@
 #include "status.h"
 #include "tx_state.h"
 #include "types.h"
+
 #include "util.h"
 
 static deployModule_t *ctx_deploy_module = &g_instructionContext.deployModule;

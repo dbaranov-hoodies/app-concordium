@@ -19,8 +19,11 @@
 #ifdef HAVE_NBGL
 
 #include "display.h"
-#include "globals.h"
+#include "menu.h"
+#include "tx_state.h"
 
+#include "nbgl_use_case.h"
+#include "nbgl_content.h"
 static tx_state_t *tx_state = &g_tx_state;
 
 //  -----------------------------------------------------------

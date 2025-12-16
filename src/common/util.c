@@ -8,6 +8,7 @@
 #include <lcx_math.h>
 #include <os_io.h>
 #include <os_io_legacy.h>
+#include <os_seed.h>
 #include <ox_ec.h>
 
 #include "account_sender.h"

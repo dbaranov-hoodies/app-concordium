@@ -1,7 +1,9 @@
 #ifndef COMMON_SIGN_H
 #define COMMON_SIGN_H
 
-#include <ux_flow_engine.h>
+#include <stdint.h>
+
+// #include <ux_flow_engine.h>
 
 #ifdef HAVE_BAGL
 
