@@ -14,6 +14,6 @@ typedef struct internal_storage_t {
 } internal_storage_t;
 
 extern const internal_storage_t N_storage_real;
-#define N_storage (*(volatile internal_storage_t *)PIC(&N_storage_real))
+#define N_storage (*(volatile internal_storage_t *) PIC(&N_storage_real))
 
 #endif  // G_N_STORAGE_H

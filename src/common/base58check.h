@@ -10,8 +10,8 @@
  * @return 0 if input was validly base58 encoded, or -1 if it was not valid base58
  */
 int base58check_encode(const unsigned char *in,
-                       size_t inlength,
-                       unsigned char *out,
-                       size_t *outlen);
+                       size_t               inlength,
+                       unsigned char       *out,
+                       size_t              *outlen);
 
 #endif  // COMMON_BASE58CHECK_H

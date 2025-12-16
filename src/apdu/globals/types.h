@@ -2,19 +2,19 @@
 #define APDU_GLOBALS_TYPES_H
 
 typedef enum {
-    DEPLOY_MODULE = 0,
-    INIT_CONTRACT = 1,
-    UPDATE_CONTRACT = 2,
-    TRANSFER = 3,
-    UPDATE_CREDENTIAL_KEYS = 13,
-    TRANSFER_TO_PUBLIC = 18,
-    TRANSFER_WITH_SCHEDULE = 19,
-    UPDATE_CREDENTIALS = 20,
-    REGISTER_DATA = 21,
-    TRANSFER_WITH_MEMO = 22,
+    DEPLOY_MODULE                    = 0,
+    INIT_CONTRACT                    = 1,
+    UPDATE_CONTRACT                  = 2,
+    TRANSFER                         = 3,
+    UPDATE_CREDENTIAL_KEYS           = 13,
+    TRANSFER_TO_PUBLIC               = 18,
+    TRANSFER_WITH_SCHEDULE           = 19,
+    UPDATE_CREDENTIALS               = 20,
+    REGISTER_DATA                    = 21,
+    TRANSFER_WITH_MEMO               = 22,
     TRANSFER_WITH_SCHEDULE_WITH_MEMO = 24,
-    CONFIGURE_BAKER = 25,
-    CONFIGURE_DELEGATION = 26
+    CONFIGURE_BAKER                  = 25,
+    CONFIGURE_DELEGATION             = 26
 } transactionKind_e;
 
 #endif  // APDU_GLOBALS_TYPES_H

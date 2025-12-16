@@ -29,15 +29,16 @@
 
 const internal_storage_t N_storage_real;
 
-void* global_state;
+void *global_state;
 
 // Main entry of application that listens for APDU commands that will be
 // received from the computer. The APDU commands control what flow is activated,
 // i.e. which control flow is initiated.
-void app_main() {
+void app_main()
+{
     // Length of APDU command received in G_io_apdu_buffer
-    int input_len = 0;
-    volatile unsigned int flags = 0;
+    int                   input_len = 0;
+    volatile unsigned int flags     = 0;
 
     // Structured APDU command
     command_t cmd;
@@ -50,8 +51,8 @@ void app_main() {
         internal_storage_t storage;
         storage.dummy1_allowed = 0x00;
         storage.dummy2_allowed = 0x00;
-        storage.initialized = 0x01;
-        nvm_write((void*)&N_storage, &storage, sizeof(internal_storage_t));
+        storage.initialized    = 0x01;
+        nvm_write((void *) &N_storage, &storage, sizeof(internal_storage_t));
     }
 
     for (;;) {
@@ -70,7 +71,7 @@ void app_main() {
         if (g_tx_state.currentInstruction == -1) {
             explicit_bzero(&g_instructionContext, sizeof(g_instructionContext));
             g_tx_state.currentInstruction = cmd.ins;
-            isInitialCall = true;
+            isInitialCall                 = true;
         }
 
         // Dispatch structured APDU command to apdu_dispatcher

@@ -7,8 +7,8 @@
 // and to keep track of the state of a multi command APDU flow.
 typedef struct {
     cx_sha256_t hash;
-    uint8_t transactionHash[32];
-    int currentInstruction;
+    uint8_t     transactionHash[32];
+    int         currentInstruction;
 } tx_state_t;
 extern tx_state_t g_tx_state;
 

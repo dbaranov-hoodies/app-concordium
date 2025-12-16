@@ -29,10 +29,10 @@
 #define MAX_ENC_INPUT_SIZE 120
 
 #define ADDRESS_LENGTH 32
-#define HASH_LENGTH 32
+#define HASH_LENGTH    32
 
-int base58check_encode(const unsigned char* in, size_t length,
-                       unsigned char* out, size_t* outlen) {
+int base58check_encode(const unsigned char *in, size_t length, unsigned char *out, size_t *outlen)
+{
     if (length != ADDRESS_LENGTH) {
         THROW(SWO_INVALID_TRANSACTION);
     }
@@ -50,9 +50,9 @@ int base58check_encode(const unsigned char* in, size_t length,
 
     // Calculate SHA256(SHA256(version + in)), and append the first 4 bytes to
     // the (version + in) bytes.
-    uint8_t hash[HASH_LENGTH];
+    uint8_t  hash[HASH_LENGTH];
     cx_err_t error = 0;
-    error = cx_hash_sha256(buffer, ADDRESS_LENGTH + 1, hash, sizeof(hash));
+    error          = cx_hash_sha256(buffer, ADDRESS_LENGTH + 1, hash, sizeof(hash));
     if (error == 0) {
         THROW(SWO_FAILED_CX_OPERATION);
     }
@@ -62,5 +62,5 @@ int base58check_encode(const unsigned char* in, size_t length,
     }
     memmove(&buffer[1 + ADDRESS_LENGTH], hash, 4);
 
-    return base58_encode(buffer, 1 + ADDRESS_LENGTH + 4, (char*)out, *outlen);
+    return base58_encode(buffer, 1 + ADDRESS_LENGTH + 4, (char *) out, *outlen);
 }

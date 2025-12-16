@@ -7,24 +7,29 @@
 #include "types.h"
 #include "util.h"
 
-static signRegisterData_t* ctx =
-    &g_instructionContext.withDataBlob.signRegisterData;
-static cborContext_t* data_ctx = &g_instructionContext.withDataBlob.cborContext;
-static tx_state_t* tx_state = &g_tx_state;
+static signRegisterData_t *ctx      = &g_instructionContext.withDataBlob.signRegisterData;
+static cborContext_t      *data_ctx = &g_instructionContext.withDataBlob.cborContext;
+static tx_state_t         *tx_state = &g_tx_state;
 
-void handleData() {
+void handleData()
+{
     if (ctx->dataLength > 0) {
         sendSuccessNoIdle();
-    } else {
+    }
+    else {
         uiSignFlowSharedDisplay();
     }
 }
 
 #define P1_INITIAL 0x00
-#define P1_DATA 0x01
+#define P1_DATA    0x01
 
-void handleSignRegisterData(uint8_t* cdata, uint8_t p1, uint8_t dataLength,
-                            volatile unsigned int* flags, bool isInitialCall) {
+void handleSignRegisterData(uint8_t               *cdata,
+                            uint8_t                p1,
+                            uint8_t                dataLength,
+                            volatile unsigned int *flags,
+                            bool                   isInitialCall)
+{
     if (isInitialCall) {
         ctx->state = TX_REGISTER_DATA_INITIAL;
     }
@@ -40,8 +45,7 @@ void handleSignRegisterData(uint8_t* cdata, uint8_t p1, uint8_t dataLength,
             THROW(SWO_FAILED_CX_OPERATION);
         }
 
-        offset = hashAccountTransactionHeaderAndKind(cdata, remainingDataLength,
-                                                     REGISTER_DATA);
+        offset = hashAccountTransactionHeaderAndKind(cdata, remainingDataLength, REGISTER_DATA);
         if (offset > dataLength) {
             THROW(SWO_BUFFER_OVERFLOW);  // Ensure safe access
         }
@@ -56,18 +60,18 @@ void handleSignRegisterData(uint8_t* cdata, uint8_t p1, uint8_t dataLength,
             THROW(SWO_INVALID_PARAM);
         }
         data_ctx->cborLength = ctx->dataLength;
-        updateHash((cx_hash_t*)&tx_state->hash, cdata, 2);
+        updateHash((cx_hash_t *) &tx_state->hash, cdata, 2);
 
         ctx->state = TX_REGISTER_DATA_PAYLOAD_START;
 
         uiRegisterDataInitialDisplay(flags);
-
-    } else if (p1 == P1_DATA) {
+    }
+    else if (p1 == P1_DATA) {
         if (ctx->dataLength < dataLength) {
             THROW(SWO_INVALID_TRANSACTION);
         }
         ctx->dataLength -= dataLength;
-        updateHash((cx_hash_t*)&tx_state->hash, cdata, dataLength);
+        updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
         switch (ctx->state) {
             case TX_REGISTER_DATA_PAYLOAD_START:
@@ -88,10 +92,12 @@ void handleSignRegisterData(uint8_t* cdata, uint8_t p1, uint8_t dataLength,
 
         if (ctx->dataLength == 0) {
             uiRegisterDataPayloadDisplay(flags);
-        } else {
+        }
+        else {
             sendSuccessNoIdle();
         }
-    } else {
+    }
+    else {
         THROW(SWO_INVALID_STATE);
     }
 }

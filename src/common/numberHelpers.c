@@ -6,7 +6,8 @@
 
 // #include "globals.h"
 
-size_t lengthOfNumber(uint64_t number) {
+size_t lengthOfNumber(uint64_t number)
+{
     if (number == 0) {
         return 1;
     }
@@ -17,7 +18,8 @@ size_t lengthOfNumber(uint64_t number) {
     return len;
 }
 
-size_t numberToText(uint8_t* dst, size_t dstLength, uint64_t number) {
+size_t numberToText(uint8_t *dst, size_t dstLength, uint64_t number)
+{
     size_t len = lengthOfNumber(number);
 
     if (dstLength < len) {
@@ -32,8 +34,12 @@ size_t numberToText(uint8_t* dst, size_t dstLength, uint64_t number) {
     return len;
 }
 
-size_t numberToTextWithUnit(uint8_t* dst, size_t dstLength, uint64_t number,
-                            uint8_t* unit, size_t unitLength) {
+size_t numberToTextWithUnit(uint8_t *dst,
+                            size_t   dstLength,
+                            uint64_t number,
+                            uint8_t *unit,
+                            size_t   unitLength)
+{
     size_t len = numberToText(dst, dstLength, number);
 
     if (dstLength - len < unitLength + 2) {
@@ -46,7 +52,8 @@ size_t numberToTextWithUnit(uint8_t* dst, size_t dstLength, uint64_t number,
     return len + unitLength + 2;
 }
 
-size_t bin2dec(uint8_t* dst, size_t dstLength, uint64_t number) {
+size_t bin2dec(uint8_t *dst, size_t dstLength, uint64_t number)
+{
     size_t characterLength = numberToText(dst, dstLength, number);
     if (dstLength < characterLength + 1) {
         THROW(SWO_BUFFER_OVERFLOW);
@@ -55,14 +62,17 @@ size_t bin2dec(uint8_t* dst, size_t dstLength, uint64_t number) {
     return characterLength + 1;
 }
 
-size_t decimalDigitsDisplay(uint8_t* dst, size_t dstLength,
-                            uint64_t decimalPart, uint8_t decimalDigitsLength) {
+size_t decimalDigitsDisplay(uint8_t *dst,
+                            size_t   dstLength,
+                            uint64_t decimalPart,
+                            uint8_t  decimalDigitsLength)
+{
     // Fill with zeroes if the number is less than decimalDigits,
     // so that input like 5304 become 005304 in their display version.
-    size_t length = lengthOfNumber(decimalPart);
-    int zeroFillLength = decimalDigitsLength - length;
+    size_t length         = lengthOfNumber(decimalPart);
+    int    zeroFillLength = decimalDigitsLength - length;
 
-    if (zeroFillLength < 0 || dstLength < (size_t)zeroFillLength) {
+    if (zeroFillLength < 0 || dstLength < (size_t) zeroFillLength) {
         THROW(SWO_BUFFER_OVERFLOW);
     }
 
@@ -77,19 +87,22 @@ size_t decimalDigitsDisplay(uint8_t* dst, size_t dstLength,
         uint64_t currentNumber = (decimalPart % 10);
         if (currentNumber != 0) {
             break;
-        } else {
+        }
+        else {
             decimalPart /= 10;
         }
     }
 
-    return numberToText(dst + zeroFillLength, dstLength - zeroFillLength,
-                        decimalPart) +
-           zeroFillLength;
+    return numberToText(dst + zeroFillLength, dstLength - zeroFillLength, decimalPart)
+           + zeroFillLength;
 }
 
-size_t decimalNumberToDisplay(uint8_t* dst, size_t dstLength, uint64_t amount,
+size_t decimalNumberToDisplay(uint8_t *dst,
+                              size_t   dstLength,
+                              uint64_t amount,
                               uint32_t resolution,
-                              uint8_t decimalDigitsLength) {
+                              uint8_t  decimalDigitsLength)
+{
     // In every case we need to write at least 2 characters
     if (dstLength < 2) {
         THROW(SWO_BUFFER_OVERFLOW);
@@ -110,9 +123,7 @@ size_t decimalNumberToDisplay(uint8_t* dst, size_t dstLength, uint64_t amount,
         dst[1] = '.';
         // We decrement the length an extra time, to make sure there is space
         // for the termination.
-        return decimalDigitsDisplay(dst + 2, dstLength - 3, amount,
-                                    decimalDigitsLength) +
-               2;
+        return decimalDigitsDisplay(dst + 2, dstLength - 3, amount, decimalDigitsLength) + 2;
     }
 
     size_t offset = 0;
@@ -120,8 +131,8 @@ size_t decimalNumberToDisplay(uint8_t* dst, size_t dstLength, uint64_t amount,
     // If we reach this case, then the number is greater than the resolution and
     // we will need to consider thousand separators for the whole number part.
     size_t wholeNumberLength = length - decimalDigitsLength;
-    int current = 0;
-    size_t separatorCount = wholeNumberLength / 3;
+    int    current           = 0;
+    size_t separatorCount    = wholeNumberLength / 3;
     if (wholeNumberLength % 3 == 0) {
         separatorCount -= 1;
     }
@@ -156,8 +167,8 @@ size_t decimalNumberToDisplay(uint8_t* dst, size_t dstLength, uint64_t amount,
     if (decimalPart != 0) {
         dst[offset] = '.';
         offset += 1;
-        offset += decimalDigitsDisplay(dst + offset, dstLength - offset,
-                                       decimalPart, decimalDigitsLength);
+        offset += decimalDigitsDisplay(
+            dst + offset, dstLength - offset, decimalPart, decimalDigitsLength);
     }
 
     // We check that we can fit the termination character
@@ -168,8 +179,8 @@ size_t decimalNumberToDisplay(uint8_t* dst, size_t dstLength, uint64_t amount,
     return offset;
 }
 
-size_t fractionToPercentageDisplay(uint8_t* dst, size_t dstLength,
-                                   uint32_t number) {
+size_t fractionToPercentageDisplay(uint8_t *dst, size_t dstLength, uint32_t number)
+{
     if (number > 100000) {
         THROW(SWO_INVALID_TRANSACTION);
     }
@@ -178,7 +189,7 @@ size_t fractionToPercentageDisplay(uint8_t* dst, size_t dstLength,
     if (dstLength < offset + 2) {
         THROW(SWO_BUFFER_OVERFLOW);
     }
-    dst[offset] = '%';
+    dst[offset]     = '%';
     dst[offset + 1] = '\0';
     return offset + 2;
 }
@@ -188,19 +199,19 @@ size_t fractionToPercentageDisplay(uint8_t* dst, size_t dstLength,
  * can displayed as GTU, i.e. not as the micro version, as it is easier
  * to relate to in the GUI.
  */
-size_t amountToGtuDisplay(uint8_t* dst, size_t dstLength,
-                          uint64_t microGtuAmount) {
-    if (dstLength < 5) return 0;  // Prevent overflow
+size_t amountToGtuDisplay(uint8_t *dst, size_t dstLength, uint64_t microGtuAmount)
+{
+    if (dstLength < 5) {
+        return 0;  // Prevent overflow
+    }
     memmove(dst, "CCD ", 4);
-    size_t offset =
-        decimalNumberToDisplay(dst + 4, dstLength, microGtuAmount, 1000000, 6) +
-        4;
-    dst[offset] = '\0';
+    size_t offset = decimalNumberToDisplay(dst + 4, dstLength, microGtuAmount, 1000000, 6) + 4;
+    dst[offset]   = '\0';
     return offset + 1;
 }
 
-void toPaginatedHex(uint8_t* byteArray, const uint64_t len, char* asHex,
-                    const size_t asHexSize) {
+void toPaginatedHex(uint8_t *byteArray, const uint64_t len, char *asHex, const size_t asHexSize)
+{
     LEDGER_ASSERT(byteArray != NULL, "NULL byteArray");
 
     static uint8_t const hex[] = "0123456789abcdef";
@@ -211,7 +222,7 @@ void toPaginatedHex(uint8_t* byteArray, const uint64_t len, char* asHex,
 
     uint8_t offset = 0;
     for (uint64_t i = 0; i < len; i++) {
-        asHex[2 * i + offset] = hex[(byteArray[i] >> 4) & 0x0F];
+        asHex[2 * i + offset]       = hex[(byteArray[i] >> 4) & 0x0F];
         asHex[2 * i + (offset + 1)] = hex[(byteArray[i] >> 0) & 0x0F];
 
         // Insert a space to force the Ledger to paginate the string every

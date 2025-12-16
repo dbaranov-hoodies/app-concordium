@@ -13,7 +13,7 @@
 /**
  * Key length of (Public Key || Verification Key || Account Key)
  */
-#define KEY_LENGTH 32
+#define KEY_LENGTH       32
 
 #define UPDATE_HEADER_LENGTH 28
 

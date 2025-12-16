@@ -21,12 +21,13 @@
 
 extern accountSender_t global_account_sender;
 
-static tx_state_t* tx_state = &g_tx_state;
-static keyDerivationPath_t* keyPath = &g_path;
-static accountSender_t* accountSender = &global_account_sender;
-static const uint32_t HARDENED_OFFSET = 0x80000000;
+static tx_state_t          *tx_state        = &g_tx_state;
+static keyDerivationPath_t *keyPath         = &g_path;
+static accountSender_t     *accountSender   = &global_account_sender;
+static const uint32_t       HARDENED_OFFSET = 0x80000000;
 
-int parseKeyDerivationPath(uint8_t* cdata, uint8_t dataLength) {
+int parseKeyDerivationPath(uint8_t *cdata, uint8_t dataLength)
+{
     if (dataLength < 1) {
         THROW(SWO_INVALID_PATH);
     }
@@ -46,9 +47,9 @@ int parseKeyDerivationPath(uint8_t* cdata, uint8_t dataLength) {
     // derivation path. All paths are hardened, but we save a non-hardened
     // version that can be displayed if needed.
     for (int i = 0; i < keyPath->pathLength; ++i) {
-        uint32_t node = U4BE(cdata, 1 + (i * 4));
+        uint32_t node                    = U4BE(cdata, 1 + (i * 4));
         keyPath->rawKeyDerivationPath[i] = node;
-        keyPath->keyDerivationPath[i] = node | HARDENED_OFFSET;
+        keyPath->keyDerivationPath[i]    = node | HARDENED_OFFSET;
     }
 
     return 1 + (4 * keyPath->pathLength);
@@ -59,19 +60,19 @@ int parseKeyDerivationPath(uint8_t* cdata, uint8_t dataLength) {
  * Use hashAccountTransactionHeaderAndKind or hashUpdateHeaderAndType
  * instead of using this method directly.
  */
-int hashHeaderAndType(uint8_t* cdata, uint8_t dataLength, uint8_t headerLength,
-                      uint8_t validType) {
+int hashHeaderAndType(uint8_t *cdata, uint8_t dataLength, uint8_t headerLength, uint8_t validType)
+{
     if (dataLength < headerLength + 1) {
         THROW(SWO_INVALID_TRANSACTION);
     }
-    updateHash((cx_hash_t*)&tx_state->hash, cdata, headerLength);
+    updateHash((cx_hash_t *) &tx_state->hash, cdata, headerLength);
     cdata += headerLength;
 
     uint8_t type = cdata[0];
     if (type != validType) {
         THROW(SWO_INVALID_TRANSACTION);
     }
-    updateHash((cx_hash_t*)&tx_state->hash, cdata, 1);
+    updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
 
     return headerLength + 1;
 }
@@ -85,21 +86,21 @@ int hashHeaderAndType(uint8_t* cdata, uint8_t dataLength, uint8_t headerLength,
  * header is parsed and saved in a global variable, so that it is available to
  * be displayed for all account transactions.
  */
-int hashAccountTransactionHeaderAndKind(uint8_t* cdata, uint8_t dataLength,
-                                        uint8_t validTransactionKind) {
+int hashAccountTransactionHeaderAndKind(uint8_t *cdata,
+                                        uint8_t  dataLength,
+                                        uint8_t  validTransactionKind)
+{
     // Parse the account sender address from the transaction header, so it can
     // be shown.
     size_t outputSize = sizeof(accountSender->sender);
-    if (base58check_encode(cdata, 32, accountSender->sender, &outputSize) ==
-        -1) {
+    if (base58check_encode(cdata, 32, accountSender->sender, &outputSize) == -1) {
         // The received address bytes are not a valid base58 encoding.
         THROW(SWO_INVALID_TRANSACTION);
     }
     accountSender->sender[55] = '\0';
 
-    return hashHeaderAndType(cdata, dataLength,
-                             ACCOUNT_TRANSACTION_HEADER_LENGTH,
-                             validTransactionKind);
+    return hashHeaderAndType(
+        cdata, dataLength, ACCOUNT_TRANSACTION_HEADER_LENGTH, validTransactionKind);
 }
 
 /**
@@ -107,14 +108,17 @@ int hashAccountTransactionHeaderAndKind(uint8_t* cdata, uint8_t dataLength,
  * type is verified to have the supplied value to prevent processing
  * invalid transactions.
  */
-int hashUpdateHeaderAndType(uint8_t* cdata, uint8_t dataLength,
-                            uint8_t validUpdateType) {
-    return hashHeaderAndType(cdata, dataLength, UPDATE_HEADER_LENGTH,
-                             validUpdateType);
+int hashUpdateHeaderAndType(uint8_t *cdata, uint8_t dataLength, uint8_t validUpdateType)
+{
+    return hashHeaderAndType(cdata, dataLength, UPDATE_HEADER_LENGTH, validUpdateType);
 }
 
-int handleHeaderAndToAddress(uint8_t* cdata, uint8_t dataLength, uint8_t kind,
-                             uint8_t* recipientDst, size_t recipientSize) {
+int handleHeaderAndToAddress(uint8_t *cdata,
+                             uint8_t  dataLength,
+                             uint8_t  kind,
+                             uint8_t *recipientDst,
+                             size_t   recipientSize)
+{
     // Parse the key derivation path, which should always be the first thing
     // received in a command to the Ledger application.
     int keyPathLength = parseKeyDerivationPath(cdata, dataLength);
@@ -126,8 +130,7 @@ int handleHeaderAndToAddress(uint8_t* cdata, uint8_t dataLength, uint8_t kind,
     if (cx_sha256_init(&tx_state->hash) != CX_SHA256) {
         THROW(SWO_FAILED_CX_OPERATION);
     }
-    int headerLength =
-        hashAccountTransactionHeaderAndKind(cdata, remainingDataLength, kind);
+    int headerLength = hashAccountTransactionHeaderAndKind(cdata, remainingDataLength, kind);
     cdata += headerLength;
     remainingDataLength -= headerLength;
 
@@ -137,12 +140,11 @@ int handleHeaderAndToAddress(uint8_t* cdata, uint8_t dataLength, uint8_t kind,
         THROW(SWO_INVALID_TRANSACTION);
     }
     memmove(toAddress, cdata, 32);
-    updateHash((cx_hash_t*)&tx_state->hash, toAddress, 32);
+    updateHash((cx_hash_t *) &tx_state->hash, toAddress, 32);
 
     // The recipient address is in a base58 format, so we need to encode it to
     // be able to display in a human-readable way.
-    if (base58check_encode(toAddress, sizeof(toAddress), recipientDst,
-                           &recipientSize) == -1) {
+    if (base58check_encode(toAddress, sizeof(toAddress), recipientDst, &recipientSize) == -1) {
         // The received address bytes are not a valid base58 encoding.
         THROW(SWO_INVALID_TRANSACTION);
     }
@@ -150,44 +152,56 @@ int handleHeaderAndToAddress(uint8_t* cdata, uint8_t dataLength, uint8_t kind,
     return keyPathLength + headerLength + 32;
 }
 
-void sendUserRejection() {
+void sendUserRejection()
+{
     sendUserRejectionNoIdle();
     ui_menu_main();
 }
 
-void sendUserRejectionNoIdle() {
+void sendUserRejectionNoIdle()
+{
     G_io_apdu_buffer[0] = SWO_CONDITIONS_NOT_SATISFIED >> 8;
     G_io_apdu_buffer[1] = SWO_CONDITIONS_NOT_SATISFIED & 0xFF;
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, 2);
 }
 
-void sendSuccess(uint8_t tx) {
+void sendSuccess(uint8_t tx)
+{
     G_io_apdu_buffer[tx++] = SWO_SUCCESS >> 8;
     G_io_apdu_buffer[tx++] = SWO_SUCCESS & 0xFF;
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
     ui_menu_main();
 }
 
-void sendSuccessNoIdle() { sendSuccessResultNoIdle(0); }
+void sendSuccessNoIdle()
+{
+    sendSuccessResultNoIdle(0);
+}
 
-void sendSuccessResultNoIdle(uint8_t tx) {
+void sendSuccessResultNoIdle(uint8_t tx)
+{
     G_io_apdu_buffer[tx++] = SWO_SUCCESS >> 8;
     G_io_apdu_buffer[tx++] = SWO_SUCCESS & 0xFF;
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
 }
 
-void getIdentityAccountDisplay(uint8_t* dst, size_t dstLength,
-                               uint32_t identityIndex, uint32_t accountIndex) {
+void getIdentityAccountDisplay(uint8_t *dst,
+                               size_t   dstLength,
+                               uint32_t identityIndex,
+                               uint32_t accountIndex)
+{
     int offset = numberToText(dst, dstLength, identityIndex);
     memmove(dst + offset, "/", 1);
     offset += 1;
     bin2dec(dst + offset, dstLength - offset, accountIndex);
 }
 
-void getIdentityAccountDisplayNewPath(uint8_t* dst, size_t dstLength,
+void getIdentityAccountDisplayNewPath(uint8_t *dst,
+                                      size_t   dstLength,
                                       uint32_t identityProviderIndex,
                                       uint32_t identityIndex,
-                                      uint32_t accountIndex) {
+                                      uint32_t accountIndex)
+{
     // Convert identityProviderIndex to text and store it in dst
     int offset = numberToText(dst, dstLength, identityProviderIndex);
     memmove(dst + offset, "/", 1);
@@ -207,29 +221,37 @@ void getIdentityAccountDisplayNewPath(uint8_t* dst, size_t dstLength,
  * is equal CX_OK. If it is not CX_OK, then throw an ERROR_FAILED_CX_OPERATION
  * error that should be sent back to the callee.
  */
-void ensureNoError(cx_err_t errorCode) {
+void ensureNoError(cx_err_t errorCode)
+{
     if (errorCode != CX_OK) {
         THROW(SWO_FAILED_CX_OPERATION);
     }
 }
 
-void getPrivateKey(uint32_t* keyPathInput, uint8_t keyPathLength,
-                   cx_ecfp_private_key_t* privateKey) {
+void getPrivateKey(uint32_t *keyPathInput, uint8_t keyPathLength, cx_ecfp_private_key_t *privateKey)
+{
     uint8_t privateKeyData[64];
 
     // Invoke the device methods for generating a private key.
     // Wrap in try/finally to ensure that private key information is cleaned up,
     // even if a system call fails.
-    BEGIN_TRY {
-        TRY {
-            ensureNoError(os_derive_bip32_with_seed_no_throw(
-                HDW_ED25519_SLIP10, CX_CURVE_Ed25519, keyPathInput,
-                keyPathLength, privateKeyData, NULL,
-                (unsigned char*)"ed25519 seed", 12));
+    BEGIN_TRY
+    {
+        TRY
+        {
+            ensureNoError(os_derive_bip32_with_seed_no_throw(HDW_ED25519_SLIP10,
+                                                             CX_CURVE_Ed25519,
+                                                             keyPathInput,
+                                                             keyPathLength,
+                                                             privateKeyData,
+                                                             NULL,
+                                                             (unsigned char *) "ed25519 seed",
+                                                             12));
             ensureNoError(cx_ecfp_init_private_key_no_throw(
                 CX_CURVE_Ed25519, privateKeyData, 32, privateKey));
         }
-        FINALLY {
+        FINALLY
+        {
             // Clean up the private key seed data, so that we cannot leak it.
             explicit_bzero(&privateKeyData, sizeof(privateKeyData));
         }
@@ -239,17 +261,20 @@ void getPrivateKey(uint32_t* keyPathInput, uint8_t keyPathLength,
 
 // Generic method that signs the input with the key given by the derivation path
 // that has been loaded into keyPath.
-void sign(uint8_t* input, uint8_t* signatureOnInput) {
+void sign(uint8_t *input, uint8_t *signatureOnInput)
+{
     cx_ecfp_private_key_t privateKey;
 
-    BEGIN_TRY {
-        TRY {
-            getPrivateKey(keyPath->keyDerivationPath, keyPath->pathLength,
-                          &privateKey);
-            ensureNoError(cx_eddsa_sign_no_throw(&privateKey, CX_SHA512, input,
-                                                 32, signatureOnInput, 64));
+    BEGIN_TRY
+    {
+        TRY
+        {
+            getPrivateKey(keyPath->keyDerivationPath, keyPath->pathLength, &privateKey);
+            ensureNoError(
+                cx_eddsa_sign_no_throw(&privateKey, CX_SHA512, input, 32, signatureOnInput, 64));
         }
-        FINALLY {
+        FINALLY
+        {
             // Clean up the private key, so that we cannot leak it.
             explicit_bzero(&privateKey, sizeof(privateKey));
         }
@@ -257,29 +282,40 @@ void sign(uint8_t* input, uint8_t* signatureOnInput) {
     END_TRY;
 }
 
-#define l_CONST 48  // ceil((3 * ceil(log2(r))) / 16)
+#define l_CONST        48  // ceil((3 * ceil(log2(r))) / 16)
 #define BLS_KEY_LENGTH 32
-#define SEED_LENGTH 32
+#define SEED_LENGTH    32
 
-void hash(cx_hash_t* hashContext, uint32_t mode, const unsigned char* in,
-          unsigned int len, unsigned char* out, unsigned int out_len) {
+void hash(cx_hash_t           *hashContext,
+          uint32_t             mode,
+          const unsigned char *in,
+          unsigned int         len,
+          unsigned char       *out,
+          unsigned int         out_len)
+{
     ensureNoError(cx_hash_no_throw(hashContext, mode, in, len, out, out_len));
 }
 
-void updateHash(cx_hash_t* hashContext, const unsigned char* in,
-                unsigned int len) {
+void updateHash(cx_hash_t *hashContext, const unsigned char *in, unsigned int len)
+{
     return hash(hashContext, 0, in, len, NULL, 0);
 }
 
 // We must declare the functions for the static analyzer to be happy. Ideally we
 // would have access to the declarations from the Ledger SDK.
-void cx_hkdf_extract(const cx_md_t hash_id, const unsigned char* ikm,
-                     unsigned int ikm_len, unsigned char* salt,
-                     unsigned int salt_len, unsigned char* prk);
-void cx_hkdf_expand(const cx_md_t hash_id, const unsigned char* prk,
-                    unsigned int prk_len, unsigned char* info,
-                    unsigned int info_len, unsigned char* okm,
-                    unsigned int okm_len);
+void cx_hkdf_extract(const cx_md_t        hash_id,
+                     const unsigned char *ikm,
+                     unsigned int         ikm_len,
+                     unsigned char       *salt,
+                     unsigned int         salt_len,
+                     unsigned char       *prk);
+void cx_hkdf_expand(const cx_md_t        hash_id,
+                    const unsigned char *prk,
+                    unsigned int         prk_len,
+                    unsigned char       *info,
+                    unsigned int         info_len,
+                    unsigned char       *okm,
+                    unsigned int         okm_len);
 
 static const uint8_t l_bytes[2] = {0, l_CONST};
 
@@ -289,27 +325,27 @@ static const uint8_t l_bytes[2] = {0, l_CONST};
  * as the hash function. The generated key has length 32, and dst should have at
  * least that length, or the function throws an error.
  */
-void blsKeygen(const uint8_t* seed, size_t seedLength, uint8_t* dst,
-               size_t dstLength) {
+void blsKeygen(const uint8_t *seed, size_t seedLength, uint8_t *dst, size_t dstLength)
+{
     if (dstLength < BLS_KEY_LENGTH) {
         THROW(SWO_BUFFER_OVERFLOW);
-    } else if (seedLength != SEED_LENGTH) {
+    }
+    else if (seedLength != SEED_LENGTH) {
         THROW(SWO_INVALID_TRANSACTION);
     }
 
     uint8_t sk[l_CONST];
     uint8_t prk[32];
-    uint8_t salt[32] = {
-        66, 76, 83, 45, 83, 73, 71, 45, 75, 69,
-        89, 71, 69, 78, 45, 83, 65, 76, 84, 45};  // Initially set to the byte
-                                                  // representation of
-                                                  // "BLS-SIG-KEYGEN-SALT-"
-    size_t saltSize = 20;  // 20 = size of initial salt seed
+    uint8_t salt[32] = {66, 76, 83, 45, 83, 73, 71, 45, 75, 69,
+                        89, 71, 69, 78, 45, 83, 65, 76, 84, 45};  // Initially set to the byte
+                                                                  // representation of
+                                                                  // "BLS-SIG-KEYGEN-SALT-"
+    size_t  saltSize = 20;                                        // 20 = size of initial salt seed
     uint8_t ikm[SEED_LENGTH + 1];
 
     memcpy(ikm, seed, SEED_LENGTH);
     ikm[SEED_LENGTH] = 0;
-    cx_err_t error = 0;
+    cx_err_t error   = 0;
     do {
         error = cx_hash_sha256(salt, saltSize, salt, sizeof(salt));
         if (error == 0) {
@@ -317,8 +353,13 @@ void blsKeygen(const uint8_t* seed, size_t seedLength, uint8_t* dst,
         }
         saltSize = sizeof(salt);
         cx_hkdf_extract(CX_SHA256, ikm, sizeof(ikm), salt, sizeof(salt), prk);
-        cx_hkdf_expand(CX_SHA256, prk, sizeof(prk), (unsigned char*)l_bytes,
-                       sizeof(l_bytes), sk, sizeof(sk));
+        cx_hkdf_expand(CX_SHA256,
+                       prk,
+                       sizeof(prk),
+                       (unsigned char *) l_bytes,
+                       sizeof(l_bytes),
+                       sk,
+                       sizeof(sk));
 
         ensureNoError(cx_math_modm_no_throw(sk, sizeof(sk), r, sizeof(r)));
     } while (cx_math_is_zero(sk, sizeof(sk)));
@@ -328,24 +369,32 @@ void blsKeygen(const uint8_t* seed, size_t seedLength, uint8_t* dst,
     memmove(dst, sk + l_CONST - BLS_KEY_LENGTH, BLS_KEY_LENGTH);
 }
 
-void getBlsPrivateKey(uint32_t* keyPathInput, uint8_t keyPathLength,
-                      uint8_t* privateKey, size_t privateKeySize) {
+void getBlsPrivateKey(uint32_t *keyPathInput,
+                      uint8_t   keyPathLength,
+                      uint8_t  *privateKey,
+                      size_t    privateKeySize)
+{
     cx_ecfp_private_key_t privateKeySeed;
-    BEGIN_TRY {
-        TRY {
+    BEGIN_TRY
+    {
+        TRY
+        {
             getPrivateKey(keyPathInput, keyPathLength, &privateKeySeed);
-            blsKeygen(privateKeySeed.d, sizeof(privateKeySeed.d), privateKey,
-                      privateKeySize);
+            blsKeygen(privateKeySeed.d, sizeof(privateKeySeed.d), privateKey, privateKeySize);
         }
-        FINALLY { explicit_bzero(&privateKeySeed, sizeof(privateKeySeed)); }
+        FINALLY
+        {
+            explicit_bzero(&privateKeySeed, sizeof(privateKeySeed));
+        }
     }
     END_TRY;
 }
 
-size_t hashAndLoadU64Ratio(uint8_t* cdata, uint8_t* dst, uint8_t sizeOfDst) {
-    uint64_t numerator = U8BE(cdata, 0);
+size_t hashAndLoadU64Ratio(uint8_t *cdata, uint8_t *dst, uint8_t sizeOfDst)
+{
+    uint64_t numerator   = U8BE(cdata, 0);
     uint64_t denominator = U8BE(cdata, 8);
-    updateHash((cx_hash_t*)&tx_state->hash, cdata, 16);
+    updateHash((cx_hash_t *) &tx_state->hash, cdata, 16);
     int numLength = numberToText(dst, sizeOfDst, numerator);
     memmove(dst + numLength, " / ", 3);
     numberToText(dst + numLength + 3, sizeOfDst - (numLength + 3), denominator);

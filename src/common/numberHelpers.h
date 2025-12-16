@@ -30,10 +30,10 @@ size_t numberToText(uint8_t *dst, size_t dstLength, uint64_t number);
  * @return number of bytes written to 'dst'
  */
 size_t numberToTextWithUnit(uint8_t *dst,
-                            size_t dstLength,
+                            size_t   dstLength,
                             uint64_t number,
                             uint8_t *unit,
-                            size_t unitLength);
+                            size_t   unitLength);
 
 /**
  * Helper method that writes the input integer to a format that the device can

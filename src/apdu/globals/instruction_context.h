@@ -19,15 +19,15 @@
 typedef struct {
     uint32_t cborLength;
     uint32_t displayUsed;
-    uint8_t display[255];
-    uint8_t majorType;
+    uint8_t  display[255];
+    uint8_t  majorType;
 } cborContext_t;
 
 typedef struct {
     union {
-        signTransferContext_t signTransferContext;
+        signTransferContext_t             signTransferContext;
         signTransferWithScheduleContext_t signTransferWithScheduleContext;
-        signRegisterData_t signRegisterData;
+        signRegisterData_t                signRegisterData;
     };
     cborContext_t cborContext;
 
@@ -40,19 +40,19 @@ typedef struct {
  */
 typedef union {
     exportPrivateKeyContext_t exportPrivateKeyContext;
-    exportPublicKeyContext_t exportPublicKeyContext;
-    verifyAddressContext_t verifyAddressContext;
+    exportPublicKeyContext_t  exportPublicKeyContext;
+    verifyAddressContext_t    verifyAddressContext;
 
-    signPublicInformationForIp_t signPublicInformationForIp;
+    signPublicInformationForIp_t      signPublicInformationForIp;
     signCredentialDeploymentContext_t signCredentialDeploymentContext;
 
-    signTransferToPublic_t signTransferToPublic;
-    signConfigureBaker_t signConfigureBaker;
+    signTransferToPublic_t           signTransferToPublic;
+    signConfigureBaker_t             signConfigureBaker;
     signConfigureDelegationContext_t signConfigureDelegation;
-    deployModule_t deployModule;
-    initContract_t initContract;
-    updateContract_t updateContract;
-    transactionWithDataBlob_t withDataBlob;
+    deployModule_t                   deployModule;
+    initContract_t                   initContract;
+    updateContract_t                 updateContract;
+    transactionWithDataBlob_t        withDataBlob;
 } instructionContext_t;
 
 extern instructionContext_t g_instructionContext;
