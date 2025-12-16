@@ -1,6 +1,7 @@
-#pragma once
+#ifndef COMMON_SIGN_H
+#define COMMON_SIGN_H
 
-#include "globals.h"
+#include <ux_flow_engine.h>
 
 #ifdef HAVE_BAGL
 
@@ -23,3 +24,5 @@ void readCborInitial(uint8_t *cdata, uint8_t dataLength);
 void readCborContent(uint8_t *cdata, uint8_t dataLength);
 
 void buildAndSignTransactionHash();
+
+#endif  // COMMON_SIGN_H

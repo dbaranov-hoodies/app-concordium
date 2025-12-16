@@ -1,5 +1,5 @@
-#pragma once
-#include "globals.h"
+#ifndef NUMBER_HELPERS_H
+#define NUMBER_HELPERS_H
 
 /**
  * Writes the input amount of µGTU to the supplied destination as its value in
@@ -68,3 +68,5 @@ size_t fractionToPercentageDisplay(uint8_t *dst, size_t dstLength, uint32_t numb
  * @param asHexSize the number of characters that may be written to 'asHex'
  */
 void toPaginatedHex(uint8_t *byteArray, const uint64_t len, char *asHex, size_t asHexSize);
+
+#endif  // NUMBER_HELPERS_H

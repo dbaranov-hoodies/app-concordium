@@ -18,10 +18,10 @@
 
 #ifdef HAVE_NBGL
 
-#include "globals.h"
 #include "display.h"
+#include "globals.h"
 
-static tx_state_t* tx_state = &global_tx_state;
+static tx_state_t* tx_state = &g_tx_state;
 
 //  -----------------------------------------------------------
 //  ----------------------- HOME PAGE -------------------------
@@ -48,14 +48,8 @@ static const nbgl_contentInfoList_t infoList = {
 void ui_menu_main(void) {
     tx_state->currentInstruction = -1;
 
-    nbgl_useCaseHomeAndSettings(APPNAME,
-                                &ICON_APP_HOME,
-                                NULL,
-                                INIT_HOME_PAGE,
-                                NULL,
-                                &infoList,
-                                NULL,
-                                app_quit);
+    nbgl_useCaseHomeAndSettings(APPNAME, &ICON_APP_HOME, NULL, INIT_HOME_PAGE,
+                                NULL, &infoList, NULL, app_quit);
 }
 
 #endif

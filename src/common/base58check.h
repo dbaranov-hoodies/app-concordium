@@ -1,7 +1,7 @@
 #ifndef COMMON_BASE58CHECK_H
 #define COMMON_BASE58CHECK_H
 
-
+#include <stddef.h>
 /**
  * Base58 encodes the input and writes the encoding to the supplied out destination. Returns a
  * non-zero value if the input cannot be validly base58 encoded, i.e. the input is malformed.

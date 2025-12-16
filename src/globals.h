@@ -50,16 +50,6 @@
 #include "initContract.h"
 #include "updateContract.h"
 
-#define LEGACY_PURPOSE   1105
-#define LEGACY_COIN_TYPE 0
-#define NEW_PURPOSE      44
-#define NEW_COIN_TYPE    919
-
-#define MAX_CDATA_LENGTH 255
-
-#define ACCOUNT_TRANSACTION_HEADER_LENGTH 60
-#define UPDATE_HEADER_LENGTH              28
-
 /**
  * Length of APPNAME variable in the Makefile.
  */
@@ -74,104 +64,6 @@
  * Maximum length of application name.
  */
 #define MAX_APPNAME_LEN 64
-
-/**
- * Key length of (Public Key || Verification Key || Account Key)
- */
-#define KEY_LENGTH 32
-
-typedef enum {
-    LEGACY_ID_CRED_SEC = 0,
-    LEGACY_PRF_KEY = 1,
-    // New path
-    NEW_ID_CRED_SEC = 2,
-    NEW_PRF_KEY = 3
-} derivation_path_keys_t;
-
-typedef enum {
-    DEPLOY_MODULE = 0,
-    INIT_CONTRACT = 1,
-    UPDATE_CONTRACT = 2,
-    TRANSFER = 3,
-    UPDATE_CREDENTIAL_KEYS = 13,
-    TRANSFER_TO_PUBLIC = 18,
-    TRANSFER_WITH_SCHEDULE = 19,
-    UPDATE_CREDENTIALS = 20,
-    REGISTER_DATA = 21,
-    TRANSFER_WITH_MEMO = 22,
-    TRANSFER_WITH_SCHEDULE_WITH_MEMO = 24,
-    CONFIGURE_BAKER = 25,
-    CONFIGURE_DELEGATION = 26
-} transactionKind_e;
-
-typedef struct {
-    uint8_t identity;
-    uint8_t accountIndex;
-
-    // Max length of path is 8. Currently we expect to receive the root, i.e. purpose and cointype
-    // as well. This could be refactored into having those values hardcoded if we determine they
-    // will be static.
-    uint8_t pathLength;
-    uint32_t keyDerivationPath[8];
-    uint32_t rawKeyDerivationPath[8];
-} keyDerivationPath_t;
-extern keyDerivationPath_t path;
-
-// Helper object used when computing the hash of a transaction,
-// and to keep track of the state of a multi command APDU flow.
-typedef struct {
-    cx_sha256_t hash;
-    uint8_t transactionHash[32];
-    int currentInstruction;
-} tx_state_t;
-extern tx_state_t global_tx_state;
-
-// Helper struct that is used to hold the account sender
-// address from an account transaction header.
-typedef struct {
-    uint8_t sender[57];
-} accountSender_t;
-extern accountSender_t global_account_sender;
-
-typedef struct {
-    uint32_t cborLength;
-    uint32_t displayUsed;
-    uint8_t display[255];
-    uint8_t majorType;
-} cborContext_t;
-
-typedef struct {
-    union {
-        signTransferContext_t signTransferContext;
-        signTransferWithScheduleContext_t signTransferWithScheduleContext;
-        signRegisterData_t signRegisterData;
-    };
-    cborContext_t cborContext;
-
-} transactionWithDataBlob_t;
-
-/**
- * As the memory we have available is very limited, the context for each instruction is stored
- * in a shared global union, so that we do not use more memory than that of the most memory
- * consuming instruction context.
- */
-typedef union {
-    exportPrivateKeyContext_t exportPrivateKeyContext;
-    exportPublicKeyContext_t exportPublicKeyContext;
-    verifyAddressContext_t verifyAddressContext;
-
-    signPublicInformationForIp_t signPublicInformationForIp;
-    signCredentialDeploymentContext_t signCredentialDeploymentContext;
-
-    signTransferToPublic_t signTransferToPublic;
-    signConfigureBaker_t signConfigureBaker;
-    signConfigureDelegationContext_t signConfigureDelegation;
-    deployModule_t deployModule;
-    initContract_t initContract;
-    updateContract_t updateContract;
-    transactionWithDataBlob_t withDataBlob;
-} instructionContext;
-extern instructionContext global;
 
 typedef struct internal_storage_t {
     uint8_t dummy1_allowed;

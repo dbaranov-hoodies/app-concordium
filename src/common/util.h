@@ -1,9 +1,8 @@
-#pragma once
+#ifndef COMMON_UTIL_H
+#define COMMON_UTIL_H
 
-#include "globals.h"
-
-#define MAX_MEMO_SIZE 256
-#define MAX_DATA_SIZE (MAX_MEMO_SIZE)
+#include <lcx_ecfp.h>
+#include <os_utils.h>
 
 /**
  * BLS12-381 subgroup G1's order:
@@ -71,13 +70,6 @@ void sendSuccess(uint8_t tx);
 void getPrivateKey(uint32_t *keyPathInput,
                    uint8_t keyPathLength,
                    cx_ecfp_private_key_t *privateKey);
-
-/**
- * Gets the public-key for the keypath that has been loaded into the state. It is a
- * pre-condition that 'parseKeyDerivation' has been run prior to this function.
- * @param publicKeyArray [out] the public-key is written here
- */
-void getPublicKey(uint8_t *publicKeyArray);
 
 /**
  * Parses the key derivation path for the command to be executed. This method should
@@ -211,3 +203,14 @@ void getBlsPrivateKey(uint32_t *keyPathInput,
  * @param sizeOfDst the size of dst
  */
 size_t hashAndLoadU64Ratio(uint8_t *cdata, uint8_t *dst, uint8_t sizeOfDst);
+
+/**
+ * Used to validate that an error result code from a Ledger library call
+ * is equal CX_OK. If it is not CX_OK, then throw an ERROR_FAILED_CX_OPERATION
+ * error that should be sent back to the callee.
+ */
+void ensureNoError(cx_err_t errorCode);
+
+void updateHash(cx_hash_t *hashContext, const unsigned char *in, unsigned int len);
+
+#endif

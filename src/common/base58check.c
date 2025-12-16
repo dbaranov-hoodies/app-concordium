@@ -24,7 +24,7 @@
 
 #include "base58.h"
 #include "cx_errors.h"
-#include "status_words_ext.h"
+#include "status.h"
 
 #define MAX_ENC_INPUT_SIZE 120
 

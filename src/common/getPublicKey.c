@@ -1,12 +1,58 @@
-#include "globals.h"
+#include <lcx_ecfp.h>
+#include <os_io.h>
+#include <os_io_legacy.h>
+#include <ox_ec.h>
 
-static keyDerivationPath_t* keyPath = &path;
-static exportPublicKeyContext_t* ctx = &global.exportPublicKeyContext;
-static tx_state_t* tx_state = &global_tx_state;
+#include "display.h"
+#include "global_defines.h"
+#include "instruction_context.h"
+#include "key_derivation_path.h"
+#include "numberHelpers.h"
+#include "status.h"
+#include "tx_state.h"
+#include "util.h"
+static keyDerivationPath_t* keyPath = &g_path;
+static exportPublicKeyContext_t* ctx =
+    &g_instructionContext.exportPublicKeyContext;
+static tx_state_t* tx_state = &g_tx_state;
 static const uint32_t HARDENED_OFFSET = 0x80000000;
 
-instructionContext global;
+/**
+ * Gets the public-key for the keypath that has been loaded into the state. It
+ * is a pre-condition that 'parseKeyDerivation' has been run prior to this
+ * function.
+ * @param publicKeyArray [out] the public-key is written here
+ */
+static void getPublicKey(uint8_t* publicKeyArray) {
+    cx_ecfp_private_key_t privateKey;
+    cx_ecfp_public_key_t publicKey;
 
+    // Wrap in try/finally to ensure private key information is cleaned up, even
+    // if the system call fails.
+    BEGIN_TRY {
+        TRY {
+            getPrivateKey(keyPath->keyDerivationPath, keyPath->pathLength,
+                          &privateKey);
+            // Invoke the device method for generating a public-key pair.
+            ensureNoError(cx_ecfp_generate_pair_no_throw(
+                CX_CURVE_Ed25519, &publicKey, &privateKey, 1));
+        }
+        FINALLY {
+            // Clean up the private key as we are done using it, so that we
+            // cannot leak it.
+            explicit_bzero(&privateKey, sizeof(privateKey));
+        }
+    }
+    END_TRY;
+
+    // Build the public-key bytes in the expected format.
+    for (int i = 0; i < 32; i++) {
+        publicKeyArray[i] = publicKey.W[64 - i];
+    }
+    if ((publicKey.W[32] & 1) != 0) {
+        publicKeyArray[31] |= 0x80;
+    }
+}
 /**
  * Derive the public-key for the given path, and then write it to
  * the APDU buffer to be returned to the caller.
@@ -29,7 +75,7 @@ void sendPublicKey(bool compare) {
         uint8_t signedPublicKey[64];
         sign(publicKey, signedPublicKey);
         if (sizeof(signedPublicKey) > sizeof(G_io_apdu_buffer) - tx) {
-            THROW(ERROR_BUFFER_OVERFLOW);
+            THROW(SWO_BUFFER_OVERFLOW);
         }
         memmove(G_io_apdu_buffer + tx, signedPublicKey,
                 sizeof(signedPublicKey));
@@ -74,12 +120,12 @@ void handleGetPublicKey(uint8_t* cdata, uint8_t p1, uint8_t p2, uint8_t lc,
         if (keyPath->pathLength == 5 &&
             keyPath->rawKeyDerivationPath[0] == 1105) {
             if (keyPath->rawKeyDerivationPath[2] != 1) {
-                THROW(ERROR_INVALID_PATH);
+                THROW(SWO_INVALID_PATH);
             }
 
             uint32_t purpose = keyPath->rawKeyDerivationPath[3];
             if (sizeof(ctx->display) < 13) {
-                THROW(ERROR_BUFFER_OVERFLOW);
+                THROW(SWO_BUFFER_OVERFLOW);
             }
 
             switch (purpose) {
@@ -93,7 +139,7 @@ void handleGetPublicKey(uint8_t* cdata, uint8_t p1, uint8_t p2, uint8_t lc,
                     memmove(ctx->display, "Gov. level 2", 13);
                     break;
                 default:
-                    THROW(ERROR_INVALID_PATH);
+                    THROW(SWO_INVALID_PATH);
             }
         } else {
             if (keyPath->rawKeyDerivationPath[0] == 44 ||

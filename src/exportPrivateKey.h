@@ -1,4 +1,8 @@
-#pragma once
+#ifndef EXPORT_PRIVATE_KEY_H
+#define EXPORT_PRIVATE_KEY_H
+
+#include <stdint.h>
+#include <stdbool.h>
 /**
  * Handles the export of private keys that are allowed to leave the device.
  * The export paths are restricted so that the method cannot access any account paths.
@@ -27,3 +31,5 @@ typedef struct {
 
 void uiExportPrivateKey(volatile unsigned int *flags);
 void exportPrivateKey(void);
+
+#endif  // EXPORT_PRIVATE_KEY_H

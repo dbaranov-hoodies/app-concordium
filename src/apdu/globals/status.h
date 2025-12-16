@@ -1,0 +1,20 @@
+#ifndef G_STATUS_H
+
+#define G_STATUS_H
+
+#include <exceptions.h>
+#include <status_words.h>
+
+#define SWO_INVALID_STATE         0x6B01
+#define SWO_INVALID_PATH          0x6B02
+#define SWO_INVALID_PARAM         0x6B03
+#define SWO_INVALID_TRANSACTION   0x6B04
+#define SWO_UNSUPPORTED_CBOR      0x6B05
+#define SWO_BUFFER_OVERFLOW       0x6B06
+#define SWO_FAILED_CX_OPERATION   0x6B07
+#define SWO_INVALID_SOURCE_LENGTH 0x6B08
+#define SWO_INVALID_MODULE_REF    0x6B09
+#define SWO_INVALID_NAME_LENGTH   0x6B0A
+#define SWO_INVALID_PARAMS_LENGTH 0x6B0B
+
+#endif  // G_STATUS_H

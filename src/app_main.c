@@ -15,14 +15,17 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include <io.h>
+#include <os_io.h>
 #include <os_io_legacy.h>
+#include <os_nvm.h>
 #include <parser.h>
 
 #include "dispatcher.h"
-#include "globals.h"
-
-keyDerivationPath_t path;
-tx_state_t global_tx_state;
+#include "instruction_context.h"
+#include "menu.h"
+#include "n_storage.h"
+#include "tx_state.h"
 
 const internal_storage_t N_storage_real;
 
@@ -39,7 +42,7 @@ void app_main() {
     // Structured APDU command
     command_t cmd;
     io_init();
-    explicit_bzero(&global_tx_state, sizeof(global_tx_state));
+    explicit_bzero(&g_tx_state, sizeof(g_tx_state));
     ui_menu_main();
 
     // Initialize the NVM data if required
@@ -59,14 +62,14 @@ void app_main() {
 
         // Parse APDU command from G_io_apdu_buffer
         if (!apdu_parser(&cmd, G_io_apdu_buffer, input_len)) {
-            io_send_sw(SW_WRONG_DATA_LENGTH);
+            io_send_sw(SWO_WRONG_DATA_LENGTH);
             continue;
         }
 
         bool isInitialCall = false;
-        if (global_tx_state.currentInstruction == -1) {
-            explicit_bzero(&global, sizeof(global));
-            global_tx_state.currentInstruction = cmd.ins;
+        if (g_tx_state.currentInstruction == -1) {
+            explicit_bzero(&g_instructionContext, sizeof(g_instructionContext));
+            g_tx_state.currentInstruction = cmd.ins;
             isInitialCall = true;
         }
 

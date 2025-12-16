@@ -2,7 +2,7 @@
 #include <ledger_assert.h>
 #include <stdint.h>
 
-#include "status_words_ext.h"
+#include "status.h"
 
 // #include "globals.h"
 

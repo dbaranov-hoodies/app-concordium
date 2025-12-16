@@ -1,4 +1,8 @@
-#pragma once
+#ifndef GET_PUBLIC_KEY_H
+#define GET_PUBLIC_KEY_H
+
+#include <stdint.h>
+#include <stdbool.h>
 
 /**
  * Handles the derivation and export of account and governance public keys.
@@ -20,3 +24,5 @@ typedef struct {
     char publicKey[68];
     bool signPublicKey;
 } exportPublicKeyContext_t;
+
+#endif  // GET_PUBLIC_KEY_H

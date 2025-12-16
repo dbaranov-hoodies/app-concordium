@@ -1,4 +1,7 @@
-#pragma once
+#ifndef UI_DISPLAY_H
+#define UI_DISPLAY_H
+
+#include <ux_flow_engine.h>
 
 #if defined(TARGET_STAX) || defined(TARGET_FLEX)
 #define ICON_APP_HOME C_app_concordium_64px
@@ -76,3 +79,5 @@ void uiSignScheduledTransferPairFlowDisplay(void);
 void uiDeployModuleDisplay(void);
 void uiInitContractDisplay(void);
 void uiUpdateContractDisplay(void);
+
+#endif  // UI_DISPLAY_H
