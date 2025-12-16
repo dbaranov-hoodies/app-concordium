@@ -50,7 +50,7 @@ cx_err_t getCredId(uint8_t *prf,
     CX_CHECK(cx_bn_alloc(&credIdExponentBn, 32));
     CX_CHECK(cx_bn_alloc(&tmpBn, 32));
     CX_CHECK(cx_bn_alloc_init(&prfBn, 32, prf, prfSize));
-    CX_CHECK(cx_bn_alloc_init(&rBn, 32, r, sizeof(r)));
+    CX_CHECK(cx_bn_alloc_init(&rBn, 32, r_bls, sizeof(r_bls)));
     CX_CHECK(cx_bn_alloc(&ccBn, 32));
     CX_CHECK(cx_bn_set_u32(ccBn, credCounter));
 

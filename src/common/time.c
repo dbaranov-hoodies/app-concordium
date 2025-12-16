@@ -9,9 +9,11 @@
  * licenses/musl-MIT.txt
  */
 #include "time.h"
+#include <limits.h>
+#include "status.h"
+#include "numberHelpers.h" 
 
-#include "globals.h"
-
+#include <string.h>
 /* 2000-03-01 (mod 400 year, immediately after feb29 */
 #define LEAPOCH (946684800LL + 86400 * (31 + 29))
 
@@ -112,7 +114,7 @@ int prefixWithZero(uint8_t *dst, size_t dstLength, int value)
 {
     if (value < 10) {
         if (dstLength < 1) {
-            THROW(ERROR_BUFFER_OVERFLOW);
+            THROW(SWO_BUFFER_OVERFLOW);
         }
         memmove(dst, "0", 1);
         return 1;
@@ -127,7 +129,7 @@ int timeToDisplayText(tm time, uint8_t *dst, size_t dstLength)
     // Check if we have enough space for full timestamp
     // Format: "YYYY-MM-DD HH:MM:SS" (19 chars + null terminator)
     if (dstLength < 20) {
-        THROW(ERROR_BUFFER_OVERFLOW);
+        THROW(SWO_BUFFER_OVERFLOW);
     }
 
     offset += numberToText(dst, dstLength, time.tm_year + 1900);

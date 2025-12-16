@@ -3,16 +3,15 @@
 
 #include <stdint.h>
 
-// #include <ux_flow_engine.h>
-
 #ifdef HAVE_BAGL
+#include <ux_flow_engine.h>
 
 extern const ux_flow_step_t        ux_sign_flow_shared_review;
 extern const ux_flow_step_t        ux_sign_flow_shared_sign;
 extern const ux_flow_step_t        ux_sign_flow_shared_decline;
 extern const ux_flow_step_t *const ux_sign_flow_shared[];
 
-#endif
+#endif  // HAVE_BAGL
 
 /**
  * Read a CBOR encoded dataBlob's initial part, i.e. the header, which contains the major type and
