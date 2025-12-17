@@ -11,7 +11,7 @@
 #include "time.h"
 #include <limits.h>
 #include "status.h"
-#include "numberHelpers.h" 
+#include "numberHelpers.h"
 
 #include <string.h>
 /* 2000-03-01 (mod 400 year, immediately after feb29 */
