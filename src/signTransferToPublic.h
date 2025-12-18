@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIGN_TRANSFER_TO_PUBLIC_H
+#define SIGN_TRANSFER_TO_PUBLIC_H
 
 /**
  * Handles the signing flow, including updating the display, for the 'transfer to public'
@@ -23,3 +24,5 @@ typedef struct {
     uint16_t                proofSize;
     transferToPublicState_t state;
 } signTransferToPublic_t;
+
+#endif  // SIGN_TRANSFER_TO_PUBLIC_H

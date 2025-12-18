@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INIT_CONTRACT_H
+#define INIT_CONTRACT_H
 typedef enum {
     INIT_CONTRACT_INITIAL      = 60,
     INIT_CONTRACT_NAME_FIRST   = 61,
@@ -26,3 +27,5 @@ typedef struct {
     uint32_t            remainingParamsLength;
     initContractState_t state;
 } initContract_t;
+
+#endif  // INIT_CONTRACT_H

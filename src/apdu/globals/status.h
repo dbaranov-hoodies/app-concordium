@@ -1,5 +1,4 @@
 #ifndef G_STATUS_H
-
 #define G_STATUS_H
 
 #include <exceptions.h>

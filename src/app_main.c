@@ -74,7 +74,6 @@ void app_main()
             isInitialCall                 = true;
         }
 
-        // Dispatch structured APDU command to apdu_dispatcher
         if (apdu_dispatcher(&cmd, &flags, isInitialCall) < 0) {
             PRINTF("=> apdu_dispatcher failure\n");
             return;

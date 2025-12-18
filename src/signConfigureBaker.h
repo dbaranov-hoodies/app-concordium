@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIGN_CONFIGURE_BAKER_H
+#define SIGN_CONFIGURE_BAKER_H
 
 /**
  * Handles the signing flow for a 'Configure Baker' transaction. It validates
@@ -63,3 +64,5 @@ typedef struct {
 } signConfigureBaker_t;
 
 bool hasCommissionRate();
+
+#endif  // SIGN_CONFIGURE_BAKER_H

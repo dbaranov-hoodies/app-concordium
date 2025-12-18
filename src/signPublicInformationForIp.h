@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIGN_PUBLIC_INFORMATION_FOR_IP_H
+#define SIGN_PUBLIC_INFORMATION_FOR_IP_H
 
 #include "buffer.h"
 
@@ -31,3 +32,5 @@ typedef struct {
     char                   keyType[2 + 1];
     publicInfoForIpState_t state;
 } signPublicInformationForIp_t;
+
+#endif  // SIGN_PUBLIC_INFORMATION_FOR_IP_H

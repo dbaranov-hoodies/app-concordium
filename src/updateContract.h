@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UPDATE_CONTRACT_H
+#define UPDATE_CONTRACT_H
 
 typedef enum {
     UPDATE_CONTRACT_INITIAL      = 60,
@@ -28,3 +29,5 @@ typedef struct {
     uint32_t              remainingParamsLength;
     updateContractState_t state;
 } updateContract_t;
+
+#endif  // UPDATE_CONTRACT_H

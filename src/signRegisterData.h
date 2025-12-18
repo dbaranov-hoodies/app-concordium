@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIGN_REGISTER_DATA_H
+#define SIGN_REGISTER_DATA_H
 
 /**
  * Handles the signing flow, including updating the display, for the 'register data'
@@ -24,3 +25,5 @@ typedef struct {
 } signRegisterData_t;
 
 void handleData(void);
+
+#endif  // SIGN_REGISTER_DATA_H

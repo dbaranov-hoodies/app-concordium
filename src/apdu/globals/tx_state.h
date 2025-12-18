@@ -1,5 +1,6 @@
 #ifndef G_TX_STATE_H
 #define G_TX_STATE_H
+
 #include <stdint.h>
 
 #include <lcx_sha256.h>

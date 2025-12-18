@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIGN_TRANSFER_WITH_SCHEDULE
+#define SIGN_TRANSFER_WITH_SCHEDULE
 
 #include "time.h"
 
@@ -47,3 +48,5 @@ typedef struct {
 } signTransferWithScheduleContext_t;
 
 void processNextScheduledAmount(uint8_t *buffer);
+
+#endif  // SIGN_TRANSFER_WITH_SCHEDULE

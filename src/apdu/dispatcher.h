@@ -7,6 +7,11 @@
 #include "parser.h"
 
 /**
+ * Instruction class of the Concordium application.
+ */
+#define CLA_CONCORDIUM 0xE0
+
+/**
  * @enum command_e
  * @brief APDU INS instructions supported by the application.
  */
@@ -50,8 +55,12 @@ typedef enum {
 
     /**@ref doc_configure_baker "doc/doc_configure_baker" */
     INS_CONFIGURE_BAKER = 0x18,
+
     /** @ref doc_public_info "doc/doc_public_info" */
     INS_PUBLIC_INFO_FOR_IP = 0x20,
+
+    /** FLOW IS NOT DOCUMENTED*/
+    INS_GET_APP_NAME = 0x21,
 
     /** FLOW IS NOT DOCUMENTED*/
     INS_SIGN_UPDATE_CREDENTIAL = 0x31,
@@ -64,12 +73,6 @@ typedef enum {
 
     /** @ref doc_register_data "doc/doc_register_data" */
     INS_REGISTER_DATA = 0x35,
-
-    /** FLOW IS NOT DOCUMENTED*/
-    INS_APP_NAME = 0x36,
-
-    /** FLOW IS NOT DOCUMENTED*/
-    INS_GET_APP_NAME = 0x21,
 
     /** @ref doc_export_private_key "doc/doc_export_private_key" */
     INS_EXPORT_PRIVATE_KEY_NEW = 0x37,

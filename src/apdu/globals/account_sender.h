@@ -1,6 +1,8 @@
 #ifndef G_ACCOUNT_SENDER_H
 #define G_ACCOUNT_SENDER_H
+
 #include <stdint.h>
+
 // Helper struct that is used to hold the account sender
 // address from an account transaction header.
 typedef struct {

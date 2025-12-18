@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef SIGN_TRANSFER_H
+#define SIGN_TRANSFER_H
 /**
  * Handles the signing flow, including updating the display, for the 'simple transfer'
  * account transaction.
@@ -30,3 +30,5 @@ typedef struct {
     uint8_t               displayAmount[30];
     simpleTransferState_t state;
 } signTransferContext_t;
+
+#endif  // SIGN_TRANSFER_H

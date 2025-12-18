@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIGN_CONFIGURE_DELEGATION_H
+#define SIGN_CONFIGURE_DELEGATION_H
 
 /**
  * Handles the signing flow for a 'Configure Delegation' transaction. It validates
@@ -18,3 +19,5 @@ typedef struct {
     bool    hasRestakeEarnings;
     bool    hasDelegationTarget;
 } signConfigureDelegationContext_t;
+
+#endif

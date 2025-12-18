@@ -1,5 +1,6 @@
 // This file is just a stub necessary to build nbgl_obj.c for Stax
-#pragma once
+#ifndef STUBS_GLYPHS_H
+#define STUBS_GLYPHS_H
 
 #ifndef GLYPH_radio_active_32px_BPP
 #define GLYPH_radio_active_32px_WIDTH  32
@@ -33,3 +34,5 @@ extern uint8_t const C_switch_60_40_bitmap[300];
 extern const nbgl_icon_details_t C_switch_60_40;
 #endif  // HAVE_NBGL
 #endif  // GLYPH_switch_60_40_BPP
+
+#endif  // STUBS_GLYPHS_H

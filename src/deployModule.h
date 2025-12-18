@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DEPLOY_MODULE_H
+#define DEPLOY_MODULE_H
 
 /**
  * Handles the DEPLOY_MODULE instruction, which deploys a module
@@ -15,3 +16,5 @@ typedef struct {
     char     sourceHashDisplay[65];
     char     versionDisplay[11];
 } deployModule_t;
+
+#endif  // DEPLOY_MODULE_H
