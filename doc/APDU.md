@@ -1,4 +1,4 @@
-# Application Protocol Data Unit (APDU) (#doc get_public_key)
+# Application Protocol Data Unit (APDU) (#doc_get_public_key)
 
 The communication protocol used by this app to exchange [APDU](https://en.wikipedia.org/wiki/Smart_card_application_protocol_data_unit) is very close to [ISO 7816-4](https://www.iso.org/standard/77180.html) with a few differences:
 

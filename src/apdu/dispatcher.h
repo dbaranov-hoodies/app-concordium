@@ -16,12 +16,11 @@
  * @brief APDU INS instructions supported by the application.
  */
 typedef enum {
-    /** 0x00 Verify an address.
- See @ref doc_verify_address "doc/verify_address.md"
+    /** 0x00 Verify an address. See @ref doc_verify_address "doc/verify_address.md"
      */
     INS_VERIFY_ADDRESS = 0x00,
 
-    /** 0x01 Start the public-key flow: @ref get_public_key "doc/get_public_key.md"
+    /** 0x01 Start the public-key flow: @ref doc_get_public_key "doc/doc_get_public_key.md"
      */
     INS_GET_PUBLIC_KEY = 0x01,
 
