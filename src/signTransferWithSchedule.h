@@ -1,4 +1,7 @@
-#pragma once
+#ifndef SIGN_TRANSFER_WITH_SCHEDULE
+#define SIGN_TRANSFER_WITH_SCHEDULE
+
+#include "time.h"
 
 /**
  * Handles the signing flow for the transfer with schedule account transaction.
@@ -7,32 +10,32 @@
  * transaction kind, recipient address and the number of scheduled transfers to make, 0x01 when
  * sending pairs of scheduled amounts.
  */
-void handleSignTransferWithSchedule(uint8_t *cdata,
-                                    uint8_t p1,
-                                    uint8_t lc,
+void handleSignTransferWithSchedule(uint8_t               *cdata,
+                                    uint8_t                p1,
+                                    uint8_t                lc,
                                     volatile unsigned int *flags,
-                                    bool isInitialCall);
+                                    bool                   isInitialCall);
 
-void handleSignTransferWithScheduleAndMemo(uint8_t *cdata,
-                                           uint8_t p1,
-                                           uint8_t dataLength,
+void handleSignTransferWithScheduleAndMemo(uint8_t               *cdata,
+                                           uint8_t                p1,
+                                           uint8_t                dataLength,
                                            volatile unsigned int *flags,
-                                           bool isInitialCall);
+                                           bool                   isInitialCall);
 
 typedef enum {
-    TX_TRANSFER_WITH_SCHEDULE_INITIAL = 28,
+    TX_TRANSFER_WITH_SCHEDULE_INITIAL        = 28,
     TX_TRANSFER_WITH_SCHEDULE_TRANSFER_PAIRS = 29,
-    TX_TRANSFER_WITH_SCHEDULE_MEMO_START = 55,
-    TX_TRANSFER_WITH_SCHEDULE_MEMO = 56,
+    TX_TRANSFER_WITH_SCHEDULE_MEMO_START     = 55,
+    TX_TRANSFER_WITH_SCHEDULE_MEMO           = 56,
 } transferWithScheduleState_t;
 
 typedef struct {
-    uint8_t transactionType;
+    uint8_t                     transactionType;
     transferWithScheduleState_t state;
 
     unsigned char displayStr[57];
-    uint8_t remainingNumberOfScheduledAmounts;
-    uint8_t scheduledAmountsInCurrentPacket;
+    uint8_t       remainingNumberOfScheduledAmounts;
+    uint8_t       scheduledAmountsInCurrentPacket;
 
     uint8_t displayAmount[30];
     uint8_t displayTimestamp[25];
@@ -45,3 +48,5 @@ typedef struct {
 } signTransferWithScheduleContext_t;
 
 void processNextScheduledAmount(uint8_t *buffer);
+
+#endif  // SIGN_TRANSFER_WITH_SCHEDULE

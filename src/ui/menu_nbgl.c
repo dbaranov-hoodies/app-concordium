@@ -18,16 +18,20 @@
 
 #ifdef HAVE_NBGL
 
-#include "globals.h"
 #include "display.h"
+#include "menu.h"
+#include "tx_state.h"
 
-static tx_state_t* tx_state = &global_tx_state;
+#include "nbgl_use_case.h"
+#include "nbgl_content.h"
+static tx_state_t *tx_state = &g_tx_state;
 
 //  -----------------------------------------------------------
 //  ----------------------- HOME PAGE -------------------------
 //  -----------------------------------------------------------
 
-void app_quit(void) {
+void app_quit(void)
+{
     // exit app here
     os_sched_exit(-1);
 }
@@ -36,26 +40,21 @@ void app_quit(void) {
 //  --------------------- SETTINGS MENU -----------------------
 //  -----------------------------------------------------------
 #define SETTING_INFO_NB 2
-static const char* const INFO_TYPES[SETTING_INFO_NB] = {"Version", "Developer"};
-static const char* const INFO_CONTENTS[SETTING_INFO_NB] = {APPVERSION, "Blooo"};
-static const nbgl_contentInfoList_t infoList = {
-    .nbInfos = SETTING_INFO_NB,
-    .infoTypes = INFO_TYPES,
-    .infoContents = INFO_CONTENTS,
+static const char *const            INFO_TYPES[SETTING_INFO_NB]    = {"Version", "Developer"};
+static const char *const            INFO_CONTENTS[SETTING_INFO_NB] = {APPVERSION, "Blooo"};
+static const nbgl_contentInfoList_t infoList                       = {
+                          .nbInfos      = SETTING_INFO_NB,
+                          .infoTypes    = INFO_TYPES,
+                          .infoContents = INFO_CONTENTS,
 };
 
 // home page definition
-void ui_menu_main(void) {
+void ui_menu_main(void)
+{
     tx_state->currentInstruction = -1;
 
-    nbgl_useCaseHomeAndSettings(APPNAME,
-                                &ICON_APP_HOME,
-                                NULL,
-                                INIT_HOME_PAGE,
-                                NULL,
-                                &infoList,
-                                NULL,
-                                app_quit);
+    nbgl_useCaseHomeAndSettings(
+        APPNAME, &ICON_APP_HOME, NULL, INIT_HOME_PAGE, NULL, &infoList, NULL, app_quit);
 }
 
 #endif

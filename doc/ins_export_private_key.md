@@ -1,4 +1,4 @@
-# Export private key
+# Export private key  {#doc_export_private_key}
 
 As the Ledger Nano S (at the time of writing) does not support the necessary key types, we have implemented an export
 of some special private keys. These keys are not account signing keys, and note that it is not possible to export keys that are used for signatures.

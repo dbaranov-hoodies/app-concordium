@@ -1,5 +1,8 @@
-#pragma once
+#ifndef COMMON_TIME_H
+#define COMMON_TIME_H
 
+#include <stdint.h>
+#include <stddef.h>
 typedef struct {
     int tm_sec;  /* seconds,  range 0 to 59          */
     int tm_min;  /* minutes, range 0 to 59           */
@@ -21,3 +24,5 @@ int secondsToTm(long long, tm *);
  * the format yyyy-mm-dd hh:mm:ss.
  */
 int timeToDisplayText(tm time, uint8_t *dst, size_t dstLength);
+
+#endif

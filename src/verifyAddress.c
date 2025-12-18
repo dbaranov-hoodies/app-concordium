@@ -1,13 +1,23 @@
-#include "globals.h"
 
 #define LEGACY_ACCOUNT_SUBTREE 0
 #define LEGACY_NORMAL_ACCOUNTS 0
 
-static verifyAddressContext_t *ctx = &global.verifyAddressContext;
+#include <cx_errors.h>
+#include <ox_bn.h>
+
+#include "base58check.h"
+#include "derivation_path_key.h"
+#include "global_defines.h"
+#include "instruction_context.h"
+#include "status.h"
+#include "util.h"
+
+static verifyAddressContext_t *ctx = &g_instructionContext.verifyAddressContext;
 
 static const uint32_t HARDENED_OFFSET = 0x80000000;
 
-// gX and gY are the coordinates of g, which is the first part of the onchainCommitmentKey.
+// gX and gY are the coordinates of g, which is the first part of the
+// onchainCommitmentKey.
 static const uint8_t gX[48] = {
     0x11, 0x4c, 0xbf, 0xe4, 0x4a, 0x02, 0xc6, 0xb1, 0xf7, 0x87, 0x11, 0x17, 0x6d, 0x5f, 0x43, 0x72,
     0x95, 0x36, 0x7a, 0xa4, 0xf2, 0xa8, 0xc2, 0x55, 0x1e, 0xe1, 0x0d, 0x25, 0xa0, 0x3a, 0xdc, 0x69,
@@ -22,10 +32,11 @@ static const uint8_t gY[48] = {
  * The size of the computed credId is 48 bytes.
  */
 cx_err_t getCredId(uint8_t *prf,
-                   size_t prfSize,
+                   size_t   prfSize,
                    uint32_t credCounter,
                    uint8_t *credId,
-                   size_t credIdSize) {
+                   size_t   credIdSize)
+{
     cx_err_t error = 0;
 
     // get bn lock to allow working with binary numbers and elliptic curves
@@ -39,14 +50,15 @@ cx_err_t getCredId(uint8_t *prf,
     CX_CHECK(cx_bn_alloc(&credIdExponentBn, 32));
     CX_CHECK(cx_bn_alloc(&tmpBn, 32));
     CX_CHECK(cx_bn_alloc_init(&prfBn, 32, prf, prfSize));
-    CX_CHECK(cx_bn_alloc_init(&rBn, 32, r, sizeof(r)));
+    CX_CHECK(cx_bn_alloc_init(&rBn, 32, r_bls, sizeof(r_bls)));
     CX_CHECK(cx_bn_alloc(&ccBn, 32));
     CX_CHECK(cx_bn_set_u32(ccBn, credCounter));
 
     // Apply cred counter offset
     CX_CHECK(cx_bn_mod_add(tmpBn, prfBn, ccBn, rBn));
 
-    // Inverse of (prf + cred_counter) is the exponent for calculating the credId
+    // Inverse of (prf + cred_counter) is the exponent for calculating the
+    // credId
     CX_CHECK(cx_bn_mod_invert_nprime(credIdExponentBn, tmpBn, rBn));
 
     // clean up binary numbers
@@ -64,7 +76,8 @@ cx_err_t getCredId(uint8_t *prf,
     CX_CHECK(cx_ecpoint_scalarmul_bn(&commitmentKey, credIdExponentBn));
     CX_CHECK(cx_bn_destroy(&credIdExponentBn));
 
-    // calculate credId which is the compressed version of commitmentKey * credIdExponent
+    // calculate credId which is the compressed version of commitmentKey *
+    // credIdExponent
     cx_bn_t x, y, negy;
     CX_CHECK(cx_bn_alloc(&x, 48));
     CX_CHECK(cx_bn_alloc(&y, 48));
@@ -97,31 +110,32 @@ end:
     return error;
 }
 
-void handleVerifyAddress(uint8_t *cdata, uint8_t p1, uint8_t lc, volatile unsigned int *flags) {
-    size_t offset = 0;
-    bool is_new_path = p1 == 0x01;
-    uint32_t identityProvider = 0;
-    uint8_t remainingDataLength = lc;
+void handleVerifyAddress(uint8_t *cdata, uint8_t p1, uint8_t lc, volatile unsigned int *flags)
+{
+    size_t   offset              = 0;
+    bool     is_new_path         = p1 == 0x01;
+    uint32_t identityProvider    = 0;
+    uint8_t  remainingDataLength = lc;
     if (is_new_path) {
         if (remainingDataLength < 4) {
-            THROW(ERROR_BUFFER_OVERFLOW);
+            THROW(SWO_BUFFER_OVERFLOW);
         }
         identityProvider = U4BE(cdata, offset);
         offset += 4;
         remainingDataLength -= 4;
     }
     if (remainingDataLength < 4) {
-        THROW(ERROR_BUFFER_OVERFLOW);
+        THROW(SWO_BUFFER_OVERFLOW);
     }
     uint32_t identity = U4BE(cdata, offset);
     offset += 4;
     remainingDataLength -= 4;
     if (remainingDataLength < 4) {
-        THROW(ERROR_BUFFER_OVERFLOW);
+        THROW(SWO_BUFFER_OVERFLOW);
     }
     uint32_t credCounter = U4BE(cdata, offset);
 
-    size_t prfKeyPathLen = is_new_path ? 5 : 6;
+    size_t    prfKeyPathLen = is_new_path ? 5 : 6;
     uint32_t *prfKeyPath;
     if (is_new_path) {
         prfKeyPath = (uint32_t[5]){NEW_PURPOSE | HARDENED_OFFSET,
@@ -129,7 +143,8 @@ void handleVerifyAddress(uint8_t *cdata, uint8_t p1, uint8_t lc, volatile unsign
                                    identityProvider | HARDENED_OFFSET,
                                    identity | HARDENED_OFFSET,
                                    NEW_PRF_KEY | HARDENED_OFFSET};
-    } else {
+    }
+    else {
         prfKeyPath = (uint32_t[6]){LEGACY_PURPOSE | HARDENED_OFFSET,
                                    LEGACY_COIN_TYPE | HARDENED_OFFSET,
                                    LEGACY_ACCOUNT_SUBTREE | HARDENED_OFFSET,
@@ -139,36 +154,37 @@ void handleVerifyAddress(uint8_t *cdata, uint8_t p1, uint8_t lc, volatile unsign
     }
 
     if (is_new_path) {
-        getIdentityAccountDisplayNewPath(ctx->display,
-                                         sizeof(ctx->display),
-                                         identityProvider,
-                                         identity,
-                                         credCounter);
-    } else {
+        getIdentityAccountDisplayNewPath(
+            ctx->display, sizeof(ctx->display), identityProvider, identity, credCounter);
+    }
+    else {
         getIdentityAccountDisplay(ctx->display, sizeof(ctx->display), identity, credCounter);
     }
 
     uint8_t credId[48];
     uint8_t prf[32];
-    BEGIN_TRY {
-        TRY {
+    BEGIN_TRY
+    {
+        TRY
+        {
             getBlsPrivateKey(prfKeyPath, prfKeyPathLen, prf, sizeof(prf));
             cx_err_t error = getCredId(prf, sizeof(prf), credCounter, credId, sizeof(credId));
             if (error != 0) {
-                THROW(ERROR_INVALID_STATE);
+                THROW(SWO_INVALID_STATE);
             }
         }
-        FINALLY {
+        FINALLY
+        {
             explicit_bzero(prf, sizeof(prf));
         }
     }
     END_TRY;
 
-    uint8_t accountAddress[32];
+    uint8_t  accountAddress[32];
     cx_err_t error = 0;
-    error = cx_hash_sha256(credId, sizeof(credId), accountAddress, sizeof(accountAddress));
+    error          = cx_hash_sha256(credId, sizeof(credId), accountAddress, sizeof(accountAddress));
     if (error == 0) {
-        THROW(ERROR_FAILED_CX_OPERATION);
+        THROW(SWO_FAILED_CX_OPERATION);
     }
     size_t addressLength = sizeof(ctx->address);
 

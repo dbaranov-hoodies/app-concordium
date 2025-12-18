@@ -17,9 +17,17 @@
 
 #ifdef HAVE_BAGL
 
-#include "globals.h"
+#include <ux_flow_engine.h>
 
-static tx_state_t *tx_state = &global_tx_state;
+#include "menu.h"
+#include "tx_state.h"
+
+static tx_state_t *tx_state = &g_tx_state;
+
+extern const bagl_icon_details_t C_app_concordium_16px;
+extern const bagl_icon_details_t C_icon_certificate;
+extern const bagl_icon_details_t C_icon_dashboard_x;
+extern const bagl_icon_details_t C_icon_back;
 
 UX_STEP_NOCB(ux_menu_ready_step, pnn, {&C_app_concordium_16px, "Concordium", "is ready"});
 UX_STEP_NOCB(ux_menu_version_step, bn, {"Version", APPVERSION});
@@ -38,7 +46,8 @@ UX_FLOW(ux_menu_main_flow,
         &ux_menu_exit_step,
         FLOW_LOOP);
 
-void ui_menu_main() {
+void ui_menu_main()
+{
     tx_state->currentInstruction = -1;
     if (G_ux.stack_count == 0) {
         ux_stack_push();
@@ -55,7 +64,8 @@ UX_STEP_CB(ux_menu_back_step, pb, ui_menu_main(), {&C_icon_back, "Back"});
 // #2 screen: back button to main menu
 UX_FLOW(ux_menu_about_flow, &ux_menu_info_step, &ux_menu_back_step, FLOW_LOOP);
 
-void ui_menu_about() {
+void ui_menu_about()
+{
     ux_flow_init(0, ux_menu_about_flow, NULL);
 }
 

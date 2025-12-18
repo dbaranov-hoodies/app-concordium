@@ -1,4 +1,4 @@
-# Transfer with schedule
+# Transfer with schedule {#doc_sign_transfer_with_schedule}
 
 A transaction to send GTU from one account to another with a schedule, i.e. each transfer
 of a GTU amount can be set to be released at a specific point in time.

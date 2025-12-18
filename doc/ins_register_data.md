@@ -1,4 +1,4 @@
-# Register data
+# Register data {#doc_register_data}
 
 A transaction to register some data on the chain.
 

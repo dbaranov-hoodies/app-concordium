@@ -1,4 +1,4 @@
-# Export public key
+# Export public key {#doc_get_public_key}
 
 Provides the ability to export public-keys for accounts, and also for governance keys. The key to
 be exported is defined by the key derivation path that is provided, which can either be for an

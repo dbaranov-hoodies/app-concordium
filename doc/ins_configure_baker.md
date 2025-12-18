@@ -1,4 +1,4 @@
-# Configure baker
+# Configure baker {#doc_configure_baker}
 
 A transaction to configure a baker.
 

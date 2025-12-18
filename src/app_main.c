@@ -15,39 +15,35 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "globals.h"
+#include <io.h>
+#include <os_io.h>
+#include <os_io_legacy.h>
+#include <os_nvm.h>
+#include <parser.h>
 
-keyDerivationPath_t path;
-tx_state_t global_tx_state;
+#include "dispatcher.h"
+#include "instruction_context.h"
+#include "menu.h"
+#include "n_storage.h"
+#include "tx_state.h"
 
 const internal_storage_t N_storage_real;
 
-// The expected CLA byte
-#define CLA 0xE0
-
-// The Ledger uses APDU commands
-// (https://en.wikipedia.org/wiki/Smart_card_application_protocol_data_unit) for performing actions.
-// The INS byte contains the instruction code that determines which action to perform.
-#define OFFSET_CLA   0x00
-#define OFFSET_INS   0x01
-#define OFFSET_P1    0x02
-#define OFFSET_P2    0x03
-#define OFFSET_LC    0x04
-#define OFFSET_CDATA 0x05
-
 void *global_state;
 
-// Main entry of application that listens for APDU commands that will be received from the
-// computer. The APDU commands control what flow is activated, i.e. which control flow is initiated.
-void app_main() {
+// Main entry of application that listens for APDU commands that will be
+// received from the computer. The APDU commands control what flow is activated,
+// i.e. which control flow is initiated.
+void app_main()
+{
     // Length of APDU command received in G_io_apdu_buffer
-    int input_len = 0;
-    volatile unsigned int flags = 0;
+    int                   input_len = 0;
+    volatile unsigned int flags     = 0;
 
     // Structured APDU command
     command_t cmd;
     io_init();
-    explicit_bzero(&global_tx_state, sizeof(global_tx_state));
+    explicit_bzero(&g_tx_state, sizeof(g_tx_state));
     ui_menu_main();
 
     // Initialize the NVM data if required
@@ -55,47 +51,31 @@ void app_main() {
         internal_storage_t storage;
         storage.dummy1_allowed = 0x00;
         storage.dummy2_allowed = 0x00;
-        storage.initialized = 0x01;
-        nvm_write((void *)&N_storage, &storage, sizeof(internal_storage_t));
+        storage.initialized    = 0x01;
+        nvm_write((void *) &N_storage, &storage, sizeof(internal_storage_t));
     }
 
     for (;;) {
         // Receive command bytes in G_io_apdu_buffer
         if ((input_len = io_recv_command()) < 0) {
-            PRINTF("=> io_recv_command failure\n");
             return;
         }
 
         // Parse APDU command from G_io_apdu_buffer
         if (!apdu_parser(&cmd, G_io_apdu_buffer, input_len)) {
-            PRINTF("=> /!\\ BAD LENGTH: %.*H\n", input_len, G_io_apdu_buffer);
-            io_send_sw(SW_WRONG_DATA_LENGTH);
+            io_send_sw(SWO_WRONG_DATA_LENGTH);
             continue;
         }
 
-        PRINTF("=> CLA=%02X | INS=%02X | P1=%02X | P2=%02X | Lc=%02X | CData=%.*H\n",
-               cmd.cla,
-               cmd.ins,
-               cmd.p1,
-               cmd.p2,
-               cmd.lc,
-               cmd.lc,
-               cmd.data);
-
         bool isInitialCall = false;
-        if (global_tx_state.currentInstruction == -1) {
-            explicit_bzero(&global, sizeof(global));
-            global_tx_state.currentInstruction = cmd.ins;
-            isInitialCall = true;
+        if (g_tx_state.currentInstruction == -1) {
+            explicit_bzero(&g_instructionContext, sizeof(g_instructionContext));
+            g_tx_state.currentInstruction = cmd.ins;
+            isInitialCall                 = true;
         }
 
-        if (cmd.cla != CLA) {
-            io_send_sw(ERROR_INVALID_CLA);
-        }
-
-        // Dispatch structured APDU command to handler
-        if (handler(cmd.ins, cmd.data, cmd.p1, cmd.p2, cmd.lc, &flags, isInitialCall) < 0) {
-            PRINTF("=> handler failure\n");
+        if (apdu_dispatcher(&cmd, &flags, isInitialCall) < 0) {
+            PRINTF("=> apdu_dispatcher failure\n");
             return;
         }
     }

@@ -1,8 +1,18 @@
-#pragma once
+#ifndef UI_DISPLAY_H
+#define UI_DISPLAY_H
+
+#include <stdbool.h>
+#include "glyphs.h"
+
+#ifdef HAVE_BAGL
+#include <ux_flow_engine.h>
+#endif  // HAVE_BAGL
 
 #if defined(TARGET_STAX) || defined(TARGET_FLEX)
+extern const nbgl_icon_details_t C_app_concordium_64px;
 #define ICON_APP_HOME C_app_concordium_64px
 #elif defined(TARGET_APEX_P)
+extern const nbgl_icon_details_t C_app_concordium_48px;
 #define ICON_APP_HOME C_app_concordium_48px
 #endif
 
@@ -76,3 +86,5 @@ void uiSignScheduledTransferPairFlowDisplay(void);
 void uiDeployModuleDisplay(void);
 void uiInitContractDisplay(void);
 void uiUpdateContractDisplay(void);
+
+#endif  // UI_DISPLAY_H

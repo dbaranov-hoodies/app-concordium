@@ -1,5 +1,5 @@
-#pragma once
-#include "globals.h"
+#ifndef NUMBER_HELPERS_H
+#define NUMBER_HELPERS_H
 
 /**
  * Writes the input amount of µGTU to the supplied destination as its value in
@@ -30,10 +30,10 @@ size_t numberToText(uint8_t *dst, size_t dstLength, uint64_t number);
  * @return number of bytes written to 'dst'
  */
 size_t numberToTextWithUnit(uint8_t *dst,
-                            size_t dstLength,
+                            size_t   dstLength,
                             uint64_t number,
                             uint8_t *unit,
-                            size_t unitLength);
+                            size_t   unitLength);
 
 /**
  * Helper method that writes the input integer to a format that the device can
@@ -68,3 +68,5 @@ size_t fractionToPercentageDisplay(uint8_t *dst, size_t dstLength, uint32_t numb
  * @param asHexSize the number of characters that may be written to 'asHex'
  */
 void toPaginatedHex(uint8_t *byteArray, const uint64_t len, char *asHex, size_t asHexSize);
+
+#endif  // NUMBER_HELPERS_H

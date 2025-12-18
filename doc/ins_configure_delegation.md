@@ -1,4 +1,4 @@
-# Configure delegation
+# Configure delegation {#doc_configure_delegation}
 
 A transaction to configure the delegation of stake.
 

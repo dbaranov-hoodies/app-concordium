@@ -1,15 +1,17 @@
-#pragma once
+#ifndef COMMON_SIGN_H
+#define COMMON_SIGN_H
 
-#include "globals.h"
+#include <stdint.h>
 
 #ifdef HAVE_BAGL
+#include <ux_flow_engine.h>
 
-extern const ux_flow_step_t ux_sign_flow_shared_review;
-extern const ux_flow_step_t ux_sign_flow_shared_sign;
-extern const ux_flow_step_t ux_sign_flow_shared_decline;
+extern const ux_flow_step_t        ux_sign_flow_shared_review;
+extern const ux_flow_step_t        ux_sign_flow_shared_sign;
+extern const ux_flow_step_t        ux_sign_flow_shared_decline;
 extern const ux_flow_step_t *const ux_sign_flow_shared[];
 
-#endif
+#endif  // HAVE_BAGL
 
 /**
  * Read a CBOR encoded dataBlob's initial part, i.e. the header, which contains the major type and
@@ -23,3 +25,5 @@ void readCborInitial(uint8_t *cdata, uint8_t dataLength);
 void readCborContent(uint8_t *cdata, uint8_t dataLength);
 
 void buildAndSignTransactionHash();
+
+#endif  // COMMON_SIGN_H

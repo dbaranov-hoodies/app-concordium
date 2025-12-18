@@ -1,4 +1,4 @@
-# Public information for identity provider
+# Public information for identity provider {#doc_public_info}
 
 When creating an identity some data has to be signed as a part of the protocol for identity creation, which
 is carried out with the identity provider. This function allows for the signing of that data.
