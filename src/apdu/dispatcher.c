@@ -22,6 +22,35 @@
 
 #define LEDGER_ASSERT_NULL_CDATA LEDGER_ASSERT(cmd->data != NULL, "NULL cdata")
 
+/**
+ * @brief Dispatch and handle a single Concordium APDU command.
+ *
+ * This function is the central APDU instruction dispatcher for the
+ * Concordium Ledger application. It validates the APDU class byte,
+ * logs the received command, and routes execution to the instruction-
+ * specific handler based on the INS value.
+ *
+ * Each instruction handler is responsible for:
+ *  - Validating P1 / P2 semantics
+ *  - Parsing command data (CData)
+ *  - Managing multi-step UI flows where applicable
+ *  - Producing the appropriate APDU response or status word
+ *
+ * Multi-call flows:
+ *  Some instructions require multiple APDU calls to complete a user-
+ *  confirmed operation. The @p isInitialCall flag indicates whether
+ *  this invocation starts a new flow or resumes an ongoing one.
+ *
+ * @param[in]  cmd            Parsed APDU command (CLA, INS, P1, P2, Lc, CData)
+ * @param[out] flags          I/O flags controlling APDU exchange behavior
+ * @param[in]  isInitialCall  True if this is the first call of a command flow
+ *
+ * @return 0 on successful dispatch. Some instructions may return
+ *         directly after sending a response.
+ *
+ * @throws SWO_INVALID_CLA if the CLA byte does not match CLA_CONCORDIUM
+ * @throws SWO_INVALID_INS if the INS value is not supported
+ */
 int apdu_dispatcher(const command_t *cmd, volatile unsigned int *flags, bool isInitialCall)
 {
     if (cmd->cla != CLA_CONCORDIUM) {
