@@ -21,11 +21,11 @@ typedef enum {
      */
     INS_VERIFY_ADDRESS = 0x00,
 
-    /** 0x01 Start the public-key flow: @ref get_public_key "doc/ins_get_public_key.md"
+    /** 0x01 Start the public-key flow: @ref get_public_key "doc/get_public_key.md"
      */
     INS_GET_PUBLIC_KEY = 0x01,
 
-    /**  0x02 Start the transfer signing flow: @ref doc_sign_transfer "doc/ins_doc_sign_transfer"*/
+    /**  0x02 Start the transfer signing flow: @ref doc_sign_transfer "doc/doc_sign_transfer"*/
     INS_SIGN_TRANSFER = 0x02,
 
     /** 0x03 Start the scheduled transfer signing flow    : @ref doc_sign_transfer_with_schedule
