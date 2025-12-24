@@ -9,8 +9,11 @@
 #include <os_io.h>
 #include <os_io_legacy.h>
 #include <os_seed.h>
+#include <cx_errors.h>
 #include <ox_ec.h>
+#include <ox_bn.h>
 
+#include <stdint.h>
 #include "account_sender.h"
 #include "base58check.h"
 #include "global_defines.h"
@@ -310,15 +313,15 @@ void cx_hkdf_extract(const cx_md_t        hash_id,
                      unsigned char       *salt,
                      unsigned int         salt_len,
                      unsigned char       *prk);
-void cx_hkdf_expand(const cx_md_t        hash_id,
-                    const unsigned char *prk,
-                    unsigned int         prk_len,
-                    unsigned char       *info,
-                    unsigned int         info_len,
-                    unsigned char       *okm,
-                    unsigned int         okm_len);
+// void cx_hkdf_expand(const cx_md_t        hash_id,
+//                     const unsigned char *prk,
+//                     unsigned int         prk_len,
+//                     unsigned char       *info,
+//                     unsigned int         info_len,
+//                     unsigned char       *okm,
+//                     unsigned int         okm_len);
 
-static const uint8_t l_bytes[2] = {0, l_CONST};
+// static const uint8_t l_bytes[2] = {0, l_CONST};
 
 /** This implements the bls key generation algorithm specified in
  * https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#section-2.3,
@@ -326,50 +329,100 @@ static const uint8_t l_bytes[2] = {0, l_CONST};
  * as the hash function. The generated key has length 32, and dst should have at
  * least that length, or the function throws an error.
  */
-void blsKeygen(const uint8_t *seed, size_t seedLength, uint8_t *dst, size_t dstLength)
+void blsKeygen(const uint8_t *seed,
+               size_t         seedLength,
+
+               uint8_t *dst,
+               size_t   dstLength)
 {
+    cx_err_t error = 0;
     if (dstLength < BLS_KEY_LENGTH) {
         THROW(SWO_BUFFER_OVERFLOW);
     }
-    else if (seedLength != SEED_LENGTH) {
+    if (seedLength != SEED_LENGTH) {
         THROW(SWO_INVALID_TRANSACTION);
     }
 
-    uint8_t sk[l_CONST];
-    uint8_t prk[32];
-    uint8_t salt[32] = {66, 76, 83, 45, 83, 73, 71, 45, 75, 69,
-                        89, 71, 69, 78, 45, 83, 65, 76, 84, 45};  // Initially set to the byte
-                                                                  // representation of
-                                                                  // "BLS-SIG-KEYGEN-SALT-"
-    size_t  saltSize = 20;                                        // 20 = size of initial salt seed
     uint8_t ikm[SEED_LENGTH + 1];
-
     memcpy(ikm, seed, SEED_LENGTH);
     ikm[SEED_LENGTH] = 0;
-    cx_err_t error   = 0;
+
+    uint8_t salt[32] = {66, 76, 83, 45, 83, 73, 71, 45, 75, 69,
+                        89, 71, 69, 78, 45, 83, 65, 76, 84, 45};  // "BLS-SIG-KEYGEN-SALT-"
+    size_t  salt_len = 20;
+
+    uint8_t prk[32];
+    uint8_t okm[48];
+
+    unsigned char info_dummy[1] = {0};
+
+    cx_bn_t y1, y2, sk, shift;
+    CX_CHECK(cx_bn_lock(8, 0));
+    CX_CHECK(cx_bn_alloc(&y1, 32));
+    CX_CHECK(cx_bn_alloc(&y2, 32));
+    CX_CHECK(cx_bn_alloc(&sk, 32));
+    CX_CHECK(cx_bn_alloc(&shift, 32));
+
+    // shift = 2^248
+    CX_CHECK(cx_bn_set_u32(shift, 0));
+    CX_CHECK(cx_bn_set_bit(shift, 248));
+
+    cx_bn_t zero;
+    CX_CHECK(cx_bn_alloc(&zero, 48));
+    CX_CHECK(cx_bn_set_u32(zero, 0));
+
+    int diff;
+
+    cx_bn_t r;
+    CX_CHECK(cx_bn_alloc_init(&r, 32, r_bls, sizeof(r_bls)));
     do {
-        error = cx_hash_sha256(salt, saltSize, salt, sizeof(salt));
-        if (error == 0) {
-            THROW(SWO_FAILED_CX_OPERATION);
-        }
-        saltSize = sizeof(salt);
+        // salt = SHA256(salt)
+        CX_CHECK(cx_hash_sha256(salt, salt_len, salt, sizeof(salt)));
+        salt_len = sizeof(salt);
+
+        // HKDF-Extract
         cx_hkdf_extract(CX_SHA256, ikm, sizeof(ikm), salt, sizeof(salt), prk);
-        cx_hkdf_expand(CX_SHA256,
-                       prk,
-                       sizeof(prk),
-                       (unsigned char *) l_bytes,
-                       sizeof(l_bytes),
-                       sk,
-                       sizeof(sk));
 
-        ensureNoError(cx_math_modm_no_throw(sk, sizeof(sk), r_bls, sizeof(r_bls)));
-    } while (cx_math_is_zero(sk, sizeof(sk)));
+        // HKDF-Expand
 
-    // Skip the first 16 bytes, because they are 0 due to calculating modulo r,
-    // which is 32 bytes (and sk has 48 bytes).
-    memmove(dst, sk + l_CONST - BLS_KEY_LENGTH, BLS_KEY_LENGTH);
+        cx_hkdf_expand(CX_SHA256, prk, sizeof(prk), info_dummy, 0, okm, sizeof(okm));
+
+        // Reverse bytes for little-endian interpretation
+        for (int i = 0; i < 24; i++) {
+            uint8_t tmp = okm[i];
+            okm[i]      = okm[47 - i];
+            okm[47 - i] = tmp;
+        }
+
+        // y1 = first 31 bytes
+        uint8_t y1_buf[32] = {0};
+        memcpy(y1_buf, okm, 31);
+        CX_CHECK(cx_bn_init(y1, y1_buf, 32));
+
+        // y2 = last 17 bytes
+        uint8_t y2_buf[32] = {0};
+        memcpy(y2_buf, okm + 31, 17);
+        CX_CHECK(cx_bn_init(y2, y2_buf, 32));
+
+        // y2 *= 2^248
+        CX_CHECK(cx_bn_mul(y2, y2, shift));
+
+        // sk = (y1 + y2) mod r
+        CX_CHECK(cx_bn_mod_add(sk, y1, y2, r));
+        CX_CHECK(cx_bn_cmp(sk, zero, &diff));
+
+    } while (diff == 0);
+
+    // Export 48-byte scalar
+    CX_CHECK(cx_bn_export(sk, dst, BLS_KEY_LENGTH));
+
+end:
+    CX_CHECK(cx_bn_destroy(&y1));
+    CX_CHECK(cx_bn_destroy(&y2));
+    CX_CHECK(cx_bn_destroy(&sk));
+    CX_CHECK(cx_bn_destroy(&shift));
+    CX_CHECK(cx_bn_unlock());
 }
-
 void getBlsPrivateKey(uint32_t *keyPathInput,
                       uint8_t   keyPathLength,
                       uint8_t  *privateKey,
