@@ -41,6 +41,8 @@
 
 #define INS_EXPORT_PRIVATE_KEY_NEW 0x37
 
+#define INS_VERIFY_ADDRESS_TESTNET 0x80
+
 int handler(uint8_t INS,
             uint8_t *cdata,
             uint8_t p1,

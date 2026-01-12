@@ -1,13 +1,8 @@
-#include "globals.h"
 #include "getAppName.h"
+#include "globals.h"
 
-int handler(uint8_t INS,
-            uint8_t *cdata,
-            uint8_t p1,
-            uint8_t p2,
-            uint8_t lc,
-            volatile unsigned int *flags,
-            bool isInitialCall) {
+int handler(uint8_t INS, uint8_t* cdata, uint8_t p1, uint8_t p2, uint8_t lc,
+            volatile unsigned int* flags, bool isInitialCall) {
     switch (INS) {
         case INS_GET_PUBLIC_KEY:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
@@ -15,7 +10,12 @@ int handler(uint8_t INS,
             break;
         case INS_VERIFY_ADDRESS:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
-            handleVerifyAddress(cdata, p1, lc, flags);
+            handleVerifyAddress(cdata, p1, lc, true, flags);
+            break;
+
+        case INS_VERIFY_ADDRESS_TESTNET:
+            LEDGER_ASSERT(cdata != NULL, "NULL cdata");
+            handleVerifyAddress(cdata, p1, lc, false, flags);
             break;
         case INS_SIGN_TRANSFER:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
@@ -31,11 +31,13 @@ int handler(uint8_t INS,
             break;
         case INS_SIGN_TRANSFER_WITH_SCHEDULE_AND_MEMO:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
-            handleSignTransferWithScheduleAndMemo(cdata, p1, lc, flags, isInitialCall);
+            handleSignTransferWithScheduleAndMemo(cdata, p1, lc, flags,
+                                                  isInitialCall);
             break;
         case INS_CREDENTIAL_DEPLOYMENT:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
-            handleSignCredentialDeployment(cdata, p1, p2, lc, flags, isInitialCall);
+            handleSignCredentialDeployment(cdata, p1, p2, lc, flags,
+                                           isInitialCall);
             break;
         case INS_EXPORT_PRIVATE_KEY_LEGACY:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
@@ -55,7 +57,8 @@ int handler(uint8_t INS,
             break;
         case INS_PUBLIC_INFO_FOR_IP:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
-            handleSignPublicInformationForIp(cdata, p1, lc, flags, isInitialCall);
+            handleSignPublicInformationForIp(cdata, p1, lc, flags,
+                                             isInitialCall);
             break;
         case INS_CONFIGURE_BAKER:
             LEDGER_ASSERT(cdata != NULL, "NULL cdata");
