@@ -43,6 +43,8 @@
 
 #define INS_APP_VERSION 0x40
 
+#define INS_TRANSFER_UNIVERSAL 0x42
+
 int handler(uint8_t INS,
             uint8_t *cdata,
             uint8_t p1,

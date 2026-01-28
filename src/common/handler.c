@@ -95,6 +95,11 @@ int handler(uint8_t INS,
 
             handler_get_version();
             break;
+
+        case INS_TRANSFER_UNIVERSAL:
+            handleSignTransferUniversal(cdata, p1, p2, lc, isInitialCall, flags);
+            break;
+
         default:
             THROW(ERROR_INVALID_INSTRUCTION);
             break;
