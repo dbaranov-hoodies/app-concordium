@@ -106,6 +106,20 @@ class InsType(IntEnum):
     SIGN_TRANSFER_WITH_SCHEDULE_AND_MEMO = 0x34
     REGISTER_DATA = 0x35
     GET_APP_VERSION = 0x40
+    SIGN_TRANSFER_UNIVERSAL = 0x42
+
+class SignTransferUniversalParams(IntEnum):
+    P1_HEADER = 0x00
+    P1_MEMO = 0x20
+    P1_SCHEDULE = 0x30
+    P1_AMOUNT = 0x40
+    P1_FEES = 0x41
+    P1_FINAL = 0x80
+    
+    P2_SIMPLE = 0x00
+    P2_MEMO = 0x01
+    P2_SCHEDULE = 0x02
+    P2_MEMO_SCHEDULE = 0x03
 
 
 class Errors(IntEnum):
@@ -199,6 +213,52 @@ class BoilerplateCommandSender:
             data=data,
         ) as response:
             yield response
+
+
+
+    @contextmanager
+    def sign_simple_transfer_universal_simple(
+        self, path: str, transaction: bytes, amount:int
+    ) -> Generator[None, None, None]:
+        data = pack_derivation_path(path)
+        data += transaction
+
+       
+
+        #transmit header, recepient address
+        rsp =  self.backend.exchange(
+            cla=CLA,
+            ins=InsType.SIGN_TRANSFER_UNIVERSAL,
+            p1=SignTransferUniversalParams.P1_HEADER,
+            p2=SignTransferUniversalParams.P2_SIMPLE,
+            data=data,
+        )
+        if rsp.status != 0x9000:
+            print(rsp)
+            raise ExceptionRAPDU(rsp.status)
+
+        #transmit amount
+        rsp =  self.backend.exchange(
+            cla=CLA,
+            ins=InsType.SIGN_TRANSFER_UNIVERSAL,
+            p1=SignTransferUniversalParams.P1_AMOUNT,
+            p2=SignTransferUniversalParams.P2_SIMPLE,
+            data=amount.to_bytes(8, byteorder="big", signed=False),
+        )
+        if rsp.status != 0x9000:
+            print(rsp)
+            raise ExceptionRAPDU(rsp.status)
+
+        with self.backend.exchange_async(
+            cla=CLA,
+            ins=InsType.SIGN_TRANSFER_UNIVERSAL,
+            p1=SignTransferUniversalParams.P1_FINAL,
+            p2=SignTransferUniversalParams.P2_SIMPLE,
+            data=b"",
+        ) as response:
+            yield response
+
+
 
     @contextmanager
     def sign_simple_transfer_with_memo(

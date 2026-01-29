@@ -183,6 +183,7 @@ void handleSignTransferUniversal(uint8_t *cdata,
             uint64_t amount = U8BE(cdata, 0);
             amountToGtuDisplay(ctx->displayAmount, sizeof(ctx->displayAmount), amount);
             updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+            sendSuccessNoIdle();
             update_state(block_type, p2);
             break;
 
