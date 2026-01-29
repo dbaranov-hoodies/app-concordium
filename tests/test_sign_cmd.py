@@ -349,7 +349,7 @@ def test_sign_tx_simple_transfer_universal(
     transaction = "20a845815bd43a1999e90fbf971537a70392eb38f89e6bd32b3dd70e1a9551d7000000000000000a0000000000000064000000290000000063de5da70320a845815bd43a1999e90fbf971537a70392eb38f89e6bd32b3dd70e1a9551d7"
     transaction = bytes.fromhex(transaction)
 
-    amount = 12_345_678_909_876_543_210
+    amount = 0xffffffffffffffff
 
     # Send the sign device instruction.
     # As it requires on-screen validation, the function is asynchronous.
