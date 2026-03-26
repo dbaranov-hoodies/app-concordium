@@ -20,23 +20,23 @@ bool g_trusted_name_valid;
 /* ── Signer algorithm enum (mirrors SDK tlv_use_case_trusted_name.h) ─────── */
 
 typedef enum {
-    SIGNER_ALGO_ECDSA_SHA256     = 0x01,
-    SIGNER_ALGO_ECDSA_SHA3_256   = 0x02,
+    SIGNER_ALGO_ECDSA_SHA256 = 0x01,
+    SIGNER_ALGO_ECDSA_SHA3_256 = 0x02,
     SIGNER_ALGO_ECDSA_KECCAK_256 = 0x03,
-    SIGNER_ALGO_ECDSA_RIPEMD160  = 0x04,
-    SIGNER_ALGO_ECDSA_SHA512     = 0x16,
+    SIGNER_ALGO_ECDSA_RIPEMD160 = 0x04,
+    SIGNER_ALGO_ECDSA_SHA512 = 0x16,
     SIGNER_ALGO_EDDSA_KECCAK_256 = 0x17,
-    SIGNER_ALGO_EDDSA_SHA3_256   = 0x18,
+    SIGNER_ALGO_EDDSA_SHA3_256 = 0x18,
 } signer_algo_t;
 
 /* ── Multi-hash: progressive hashing with all supported algorithms ───────── */
 
 typedef struct {
-    cx_sha256_t    sha256;
-    cx_sha3_t      sha3_256;
-    cx_sha3_t      keccak_256;
+    cx_sha256_t sha256;
+    cx_sha3_t sha3_256;
+    cx_sha3_t keccak_256;
     cx_ripemd160_t ripemd160;
-    cx_sha512_t    sha512;
+    cx_sha512_t sha512;
 } multi_hash_ctx_t;
 
 typedef struct {
@@ -68,37 +68,37 @@ static void update_multi_hash(multi_hash_ctx_t *h, buffer_t data) {
 }
 
 static int finalize_multi_hash(const multi_hash_ctx_t *h,
-                               uint8_t                 signer_algo,
+                               uint8_t signer_algo,
                                multi_hash_finalized_t *out) {
     cx_hash_t *hash;
     switch (signer_algo) {
         case SIGNER_ALGO_ECDSA_SHA256:
-            hash           = (cx_hash_t *) &h->sha256;
+            hash = (cx_hash_t *) &h->sha256;
             out->hash.size = sizeof(out->_sha256);
             break;
         case SIGNER_ALGO_ECDSA_SHA3_256:
         case SIGNER_ALGO_EDDSA_SHA3_256:
-            hash           = (cx_hash_t *) &h->sha3_256;
+            hash = (cx_hash_t *) &h->sha3_256;
             out->hash.size = sizeof(out->_sha3_256);
             break;
         case SIGNER_ALGO_ECDSA_KECCAK_256:
         case SIGNER_ALGO_EDDSA_KECCAK_256:
-            hash           = (cx_hash_t *) &h->keccak_256;
+            hash = (cx_hash_t *) &h->keccak_256;
             out->hash.size = sizeof(out->_keccak_256);
             break;
         case SIGNER_ALGO_ECDSA_RIPEMD160:
-            hash           = (cx_hash_t *) &h->ripemd160;
+            hash = (cx_hash_t *) &h->ripemd160;
             out->hash.size = sizeof(out->_ripemd160);
             break;
         case SIGNER_ALGO_ECDSA_SHA512:
-            hash           = (cx_hash_t *) &h->sha512;
+            hash = (cx_hash_t *) &h->sha512;
             out->hash.size = sizeof(out->_sha512);
             break;
         default:
             PRINTF("Unknown signer algo %d\n", signer_algo);
             return -1;
     }
-    out->hash.ptr    = &out->_offset_0;
+    out->hash.ptr = &out->_offset_0;
     out->hash.offset = 0;
     if (cx_hash_final(hash, &out->_offset_0) != CX_OK) {
         return -1;
@@ -119,16 +119,16 @@ static int finalize_multi_hash(const multi_hash_ctx_t *h,
 typedef struct {
     TLV_reception_t received_tags;
 
-    uint8_t  structure_type;
-    uint8_t  version;
-    uint8_t  trusted_name_type;
-    uint8_t  trusted_name_source;
-    char     name[TRUSTED_NAME_MAX_LEN + 1];
+    uint8_t structure_type;
+    uint8_t version;
+    uint8_t trusted_name_type;
+    uint8_t trusted_name_source;
+    char name[TRUSTED_NAME_MAX_LEN + 1];
     buffer_t address;
     uint64_t chain_id;
     uint64_t challenge;
     uint16_t signer_key_id;
-    uint8_t  signer_algo;
+    uint8_t signer_algo;
     buffer_t signature;
 
     multi_hash_ctx_t hash_ctx;
@@ -338,9 +338,8 @@ void handleSetTrustedName(uint8_t *cdata, uint8_t p1, uint8_t p2, uint8_t lc) {
     g_trusted_name[strlen(ctx.name)] = '\0';
 
     explicit_bzero(g_trusted_address, sizeof(g_trusted_address));
-    uint8_t addr_len = (ctx.address.size <= TRUSTED_ADDRESS_MAX_SIZE)
-                           ? (uint8_t) ctx.address.size
-                           : TRUSTED_ADDRESS_MAX_SIZE;
+    uint8_t addr_len = (ctx.address.size <= TRUSTED_ADDRESS_MAX_SIZE) ? (uint8_t) ctx.address.size
+                                                                      : TRUSTED_ADDRESS_MAX_SIZE;
     memmove(g_trusted_address, ctx.address.ptr, addr_len);
     g_trusted_address_len = addr_len;
 
