@@ -80,6 +80,10 @@ VARIANT_VALUES = CCD
 # Enabling DEBUG flag will enable PRINTF and disable optimizations
 #DEBUG = 1
 
+# Accept test signer key ID (0x00) for trusted name TLV in non-production builds.
+# Remove or guard behind ifdef DEBUG for release.
+DEFINES += TRUSTED_NAME_TEST_KEY
+
 ########################################
 #     Application custom permissions   #
 ########################################
@@ -94,6 +98,13 @@ VARIANT_VALUES = CCD
 ########################################
 ENABLE_BLUETOOTH = 1
 #ENABLE_NFC = 1
+
+########################################
+#    Nano PKI + TLV (lib_pki/lib_tlv)  #
+########################################
+# Required for trusted-name verification (TLV descriptor format + PKI signature).
+ENABLE_PKI_LIBRARY = 1
+ENABLE_TLV_LIBRARY = 1
 
 ########################################
 #         NBGL custom features         #

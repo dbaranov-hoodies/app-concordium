@@ -8,6 +8,10 @@ void eraseChallenge(void) {
     explicit_bzero(challenge, sizeof(*challenge));
 }
 
+uint64_t getStoredChallenge(void) {
+    return U8BE((const uint8_t *) challenge, 0);
+}
+
 void handleGetChallenge(void) {
     uint8_t buf[CHALLENGE_SIZE];
     cx_rng_no_throw(buf, sizeof(buf));

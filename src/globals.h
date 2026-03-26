@@ -67,6 +67,7 @@
 #include "initContract.h"
 #include "updateContract.h"
 #include "challenge.h"
+#include "trustedName.h"
 
 #define U32_BYTES        4
 #define MAX_CDATA_LENGTH 255
