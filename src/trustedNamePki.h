@@ -37,7 +37,16 @@ typedef struct trustedNameTlvExtracted_s {
 } trustedNameTlvExtracted_t;
 
 typedef struct trustedNamePkiContext_s {
-    /** Written by GET_CHALLENGE; must survive SET_TRUSTED_NAME hash/tlv reset (see trustedName.c).
+    /**
+     * Last GET_CHALLENGE value. Must survive SET_TRUSTED_NAME TLV/hash partial clears
+     * (see trustedName.c clear_trusted_name_pki_working_state).
+     *
+     * This field lives in instructionContext `global`, a union shared with every other
+     * instruction handler: any interleaved APDU that reuses `global` overwrites the challenge.
+     * Another GET_CHALLENGE also replaces it. When a new command is handled with
+     * currentInstruction == INSTRUCTION_NONE, app_main zeroes the entire union.
+     * A broken host flow therefore loses the value expected by SET_TRUSTED_NAME
+     * (verify_challenge fails).
      */
     uint64_t stored_challenge;
     trustedNameMultiHashCtx_t hash_ctx;

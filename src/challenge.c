@@ -14,6 +14,8 @@ void handleGetChallenge(void) {
     uint8_t buf[CHALLENGE_SIZE];
     cx_rng_no_throw(buf, sizeof(buf));
 
+    /* Overwrites any previous challenge. Interleaved flows that reuse instructionContext
+     * `global` can also wipe stored_challenge — see trustedNamePki.h (stored_challenge). */
     memcpy(&global.trustedNamePki.stored_challenge, buf, CHALLENGE_SIZE);
 
     memcpy(G_io_apdu_buffer, buf, CHALLENGE_SIZE); /* big-endian output */

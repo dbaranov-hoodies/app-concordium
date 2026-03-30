@@ -150,7 +150,8 @@ typedef struct {
  * consuming instruction context.
  *
  * trustedNamePki holds SET_TRUSTED_NAME TLV/hash state and (first field) the GET_CHALLENGE
- * nonce — see trustedNamePki.h / challenge.c.
+ * nonce — see trustedNamePki.h / challenge.c. That nonce is not isolated: the union is shared,
+ * so other instructions overwrite the same memory if the host interleaves commands.
  */
 #include "trustedNamePki.h"
 typedef union {
