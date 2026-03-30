@@ -62,7 +62,6 @@ All fields except the DER Signature (tag `0x15`) are included in the progressive
 - TLV parse failure, missing required fields, wrong structure type → `0x6B03`.
 - Challenge mismatch or no prior GET\_CHALLENGE → `0x6B03`.
 - PKI signature verification failure → `0x6B03`.
-- `HAVE_LEDGER_PKI` not available → `0x6D00` (invalid instruction).
 
 ## Interaction with Get Challenge
 

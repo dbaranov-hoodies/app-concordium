@@ -22,7 +22,7 @@ The host embeds this challenge in the TLV descriptor (tag `0x12`) so the firmwar
 ## Behavior
 
 - Each call generates a new random challenge and overwrites the previous one
-- The challenge is stored in device memory until:
+- The challenge is stored in `global.trustedNamePki.stored_challenge` (instruction-context union; see `trustedNamePki.h`) until:
   - A new challenge is requested (overwritten), or
   - `eraseChallenge()` is called when SET\_TRUSTED\_NAME succeeds
 - The challenge must be called **before** SET\_TRUSTED\_NAME; the firmware rejects descriptors with a mismatched or zero challenge

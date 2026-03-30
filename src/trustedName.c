@@ -1,21 +1,16 @@
 #include "globals.h"
 #include "trustedName.h"
 #include "challenge.h"
-
-#if defined(HAVE_LEDGER_PKI)
 #include "buffer.h"
 #include "ledger_pki.h"
 #include "os_pki.h"
 #include "tlv_library.h"
 #include "lcx_hash.h"
-#endif
 
 char g_trusted_name[TRUSTED_NAME_MAX_LEN + 1];
 uint8_t g_trusted_address[TRUSTED_ADDRESS_MAX_SIZE];
 uint8_t g_trusted_address_len;
 bool g_trusted_name_valid;
-
-#if defined(HAVE_LEDGER_PKI)
 
 /* ── Signer algorithm enum (mirrors SDK tlv_use_case_trusted_name.h) ─────── */
 
@@ -32,14 +27,6 @@ typedef enum {
 /* ── Multi-hash: progressive hashing with all supported algorithms ───────── */
 
 typedef struct {
-    cx_sha256_t sha256;
-    cx_sha3_t sha3_256;
-    cx_sha3_t keccak_256;
-    cx_ripemd160_t ripemd160;
-    cx_sha512_t sha512;
-} multi_hash_ctx_t;
-
-typedef struct {
     union {
         uint8_t _sha256[CX_SHA256_SIZE];
         uint8_t _sha3_256[CX_SHA3_256_SIZE];
@@ -51,7 +38,7 @@ typedef struct {
     buffer_t hash;
 } multi_hash_finalized_t;
 
-static void init_multi_hash(multi_hash_ctx_t *h) {
+static void init_multi_hash(trustedNameMultiHashCtx_t *h) {
     CX_ASSERT(cx_sha256_init_no_throw(&h->sha256));
     CX_ASSERT(cx_sha3_init_no_throw(&h->sha3_256, CX_SHA3_256_SIZE * 8));
     CX_ASSERT(cx_keccak_init_no_throw(&h->keccak_256, CX_KECCAK_256_SIZE * 8));
@@ -59,7 +46,7 @@ static void init_multi_hash(multi_hash_ctx_t *h) {
     CX_ASSERT(cx_sha512_init_no_throw(&h->sha512));
 }
 
-static void update_multi_hash(multi_hash_ctx_t *h, buffer_t data) {
+static void update_multi_hash(trustedNameMultiHashCtx_t *h, buffer_t data) {
     CX_ASSERT(cx_hash_update((cx_hash_t *) &h->sha256, data.ptr, data.size));
     CX_ASSERT(cx_hash_update((cx_hash_t *) &h->sha3_256, data.ptr, data.size));
     CX_ASSERT(cx_hash_update((cx_hash_t *) &h->keccak_256, data.ptr, data.size));
@@ -67,7 +54,7 @@ static void update_multi_hash(multi_hash_ctx_t *h, buffer_t data) {
     CX_ASSERT(cx_hash_update((cx_hash_t *) &h->sha512, data.ptr, data.size));
 }
 
-static int finalize_multi_hash(multi_hash_ctx_t *h,
+static int finalize_multi_hash(trustedNameMultiHashCtx_t *h,
                                uint8_t signer_algo,
                                multi_hash_finalized_t *out) {
     cx_hash_t *hash;
@@ -116,71 +103,60 @@ static int finalize_multi_hash(multi_hash_ctx_t *h,
 #define DER_SIG_MIN 64
 #define DER_SIG_MAX 72
 
-typedef struct {
-    TLV_reception_t received_tags;
-
-    uint8_t structure_type;
-    uint8_t version;
-    uint8_t trusted_name_type;
-    uint8_t trusted_name_source;
-    char name[TRUSTED_NAME_MAX_LEN + 1];
-    buffer_t address;
-    uint64_t chain_id;
-    uint64_t challenge;
-    uint16_t signer_key_id;
-    uint8_t signer_algo;
-    buffer_t signature;
-
-    multi_hash_ctx_t hash_ctx;
-} ccd_tlv_extracted_t;
+/** Clears TLV + hash only; preserves GET_CHALLENGE value in global.trustedNamePki.stored_challenge.
+ */
+static void clear_trusted_name_pki_working_state(void) {
+    explicit_bzero(&global.trustedNamePki.hash_ctx, sizeof(global.trustedNamePki.hash_ctx));
+    explicit_bzero(&global.trustedNamePki.tlv, sizeof(global.trustedNamePki.tlv));
+}
 
 /* ── Individual tag handlers ─────────────────────────────────────────────── */
 
-static bool h_structure_type(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_structure_type(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint8_t_from_tlv_data(data, &ctx->structure_type);
 }
 
-static bool h_version(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_version(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint8_t_from_tlv_data(data, &ctx->version);
 }
 
-static bool h_name_type(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_name_type(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint8_t_from_tlv_data(data, &ctx->trusted_name_type);
 }
 
-static bool h_name_source(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_name_source(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint8_t_from_tlv_data(data, &ctx->trusted_name_source);
 }
 
-static bool h_trusted_name(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_trusted_name(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_string_from_tlv_data(data, ctx->name, 1, sizeof(ctx->name));
 }
 
-static bool h_chain_id(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_chain_id(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint64_t_from_tlv_data(data, &ctx->chain_id);
 }
 
-static bool h_address(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_address(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_buffer_from_tlv_data(data, &ctx->address, 1, 0);
 }
 
-static bool h_challenge(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_challenge(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint64_t_from_tlv_data(data, &ctx->challenge);
 }
 
-static bool h_signer_key_id(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_signer_key_id(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint16_t_from_tlv_data(data, &ctx->signer_key_id);
 }
 
-static bool h_signer_algo(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_signer_algo(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_uint8_t_from_tlv_data(data, &ctx->signer_algo);
 }
 
-static bool h_der_signature(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_der_signature(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
     return get_buffer_from_tlv_data(data, &ctx->signature, DER_SIG_MIN, DER_SIG_MAX);
 }
 
-static bool h_common(const tlv_data_t *data, ccd_tlv_extracted_t *ctx);
+static bool h_common(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx);
 
 // clang-format off
 #define CCD_TLV_TAGS(X)                                                                  \
@@ -202,16 +178,18 @@ static bool h_common(const tlv_data_t *data, ccd_tlv_extracted_t *ctx);
 
 DEFINE_TLV_PARSER(CCD_TLV_TAGS, &h_common, ccd_parse_tlv)
 
-static bool h_common(const tlv_data_t *data, ccd_tlv_extracted_t *ctx) {
+static bool h_common(const tlv_data_t *data, trustedNameTlvExtracted_t *ctx) {
+    // ctx is required by the tlv_handler_cb_t contract; this function does not use it
+    (void) ctx;
     if (data->tag != CCD_TAG_DER_SIGNATURE) {
-        update_multi_hash(&ctx->hash_ctx, data->raw);
+        update_multi_hash(&global.trustedNamePki.hash_ctx, data->raw);
     }
     return true;
 }
 
 /* ── Post-parse validation ───────────────────────────────────────────────── */
 
-static bool verify_fields(const ccd_tlv_extracted_t *ctx) {
+static bool verify_fields(const trustedNameTlvExtracted_t *ctx) {
 #ifdef TRUSTED_NAME_TEST_KEY
     uint16_t valid_key_id = SIGNER_KEY_ID_TEST;
 #else
@@ -247,7 +225,7 @@ static bool verify_fields(const ccd_tlv_extracted_t *ctx) {
     return true;
 }
 
-static bool verify_challenge(const ccd_tlv_extracted_t *ctx) {
+static bool verify_challenge(const trustedNameTlvExtracted_t *ctx) {
     uint64_t stored = getStoredChallenge();
     if (stored == 0) {
         PRINTF("No challenge stored (call GET_CHALLENGE first)\n");
@@ -260,9 +238,9 @@ static bool verify_challenge(const ccd_tlv_extracted_t *ctx) {
     return true;
 }
 
-static bool verify_signature(ccd_tlv_extracted_t *ctx) {
+static bool verify_signature(const trustedNameTlvExtracted_t *ctx) {
     multi_hash_finalized_t finalized;
-    if (finalize_multi_hash(&ctx->hash_ctx, ctx->signer_algo, &finalized) != 0) {
+    if (finalize_multi_hash(&global.trustedNamePki.hash_ctx, ctx->signer_algo, &finalized) != 0) {
         return false;
     }
 
@@ -284,17 +262,12 @@ static bool verify_signature(ccd_tlv_extracted_t *ctx) {
     return true;
 }
 
-#endif /* HAVE_LEDGER_PKI */
-
 static void sendSetTrustedNameError(uint16_t sw) {
     global_tx_state.currentInstruction = INSTRUCTION_NONE;
     io_send_sw(sw);
 }
 
 void handleSetTrustedName(uint8_t *cdata, uint8_t p1, uint8_t p2, uint8_t lc) {
-#if !defined(HAVE_LEDGER_PKI)
-    sendSetTrustedNameError(ERROR_INVALID_INSTRUCTION);
-#else
     if (p1 != 0 || p2 != 0) {
         sendSetTrustedNameError(ERROR_INVALID_PARAM);
         return;
@@ -308,45 +281,52 @@ void handleSetTrustedName(uint8_t *cdata, uint8_t p1, uint8_t p2, uint8_t lc) {
 
     buffer_t payload = {.ptr = cdata, .size = lc, .offset = 0};
 
-    ccd_tlv_extracted_t ctx;
-    explicit_bzero(&ctx, sizeof(ctx));
-    init_multi_hash(&ctx.hash_ctx);
+    clear_trusted_name_pki_working_state();
+    init_multi_hash(&global.trustedNamePki.hash_ctx);
 
-    if (!ccd_parse_tlv(&payload, &ctx, &ctx.received_tags)) {
+    if (!ccd_parse_tlv(&payload,
+                       &global.trustedNamePki.tlv,
+                       &global.trustedNamePki.tlv.received_tags)) {
         PRINTF("TLV parse failed\n");
+        clear_trusted_name_pki_working_state();
         sendSetTrustedNameError(ERROR_INVALID_PARAM);
         return;
     }
 
-    if (!verify_fields(&ctx)) {
+    if (!verify_fields(&global.trustedNamePki.tlv)) {
+        clear_trusted_name_pki_working_state();
         sendSetTrustedNameError(ERROR_INVALID_PARAM);
         return;
     }
 
-    if (!verify_challenge(&ctx)) {
+    if (!verify_challenge(&global.trustedNamePki.tlv)) {
+        clear_trusted_name_pki_working_state();
         sendSetTrustedNameError(ERROR_INVALID_PARAM);
         return;
     }
 
-    if (!verify_signature(&ctx)) {
+    if (!verify_signature(&global.trustedNamePki.tlv)) {
+        clear_trusted_name_pki_working_state();
         sendSetTrustedNameError(ERROR_INVALID_PARAM);
         return;
     }
 
     explicit_bzero(g_trusted_name, sizeof(g_trusted_name));
-    size_t name_len = strlen(ctx.name);
-    memmove(g_trusted_name, ctx.name, name_len);
+    size_t name_len = strlen(global.trustedNamePki.tlv.name);
+    memmove(g_trusted_name, global.trustedNamePki.tlv.name, name_len);
     g_trusted_name[name_len] = '\0';
 
     explicit_bzero(g_trusted_address, sizeof(g_trusted_address));
-    uint8_t addr_len = (ctx.address.size <= TRUSTED_ADDRESS_MAX_SIZE) ? (uint8_t) ctx.address.size
-                                                                      : TRUSTED_ADDRESS_MAX_SIZE;
-    memmove(g_trusted_address, ctx.address.ptr, addr_len);
+    uint8_t addr_len = (global.trustedNamePki.tlv.address.size <= TRUSTED_ADDRESS_MAX_SIZE)
+                           ? (uint8_t) global.trustedNamePki.tlv.address.size
+                           : TRUSTED_ADDRESS_MAX_SIZE;
+    memmove(g_trusted_address, global.trustedNamePki.tlv.address.ptr, addr_len);
     g_trusted_address_len = addr_len;
 
     g_trusted_name_valid = true;
     eraseChallenge();
 
+    explicit_bzero(&global.trustedNamePki, sizeof(global.trustedNamePki));
+
     sendSuccess(0);
-#endif
 }

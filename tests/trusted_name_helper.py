@@ -57,7 +57,6 @@ def _tlv(tag: int, value: bytes) -> bytes:
 # ── Test PKI certificates (from app-ethereum, signed by Speculos test root) ─
 
 # These certificates contain the public key matching TRUSTED_NAME_PRIVATE_KEY_PEM.
-# Keyed by Speculos device type name.
 PKI_CERTIFICATES_TRUSTED_NAME = {
     "nanosp": "01010102010211040000000212010013020002140101160400000000200C547275737465645F4E616D6530020007310104320121332102B91FBEC173E3BA4A714E014EBC827B6F899A9FA7F4AC769CDE284317A00F4F6534010135010315473045022100F394484C045418507E0F76A3231F233B920C733D3E5BB68AFBAA80A55195F70D022012BC1FD796CD2081D8355DEEFA051FBB9329E34826FF3125098F4C6A0C29992A",
     "nanox":  "01010102010211040000000212010013020002140101160400000000200C547275737465645F4E616D6530020007310104320121332102B91FBEC173E3BA4A714E014EBC827B6F899A9FA7F4AC769CDE284317A00F4F65340101350102154730450221009D97646C49EE771BE56C321AB59C732E10D5D363EBB9944BF284A3A04EC5A14102200633518E851984A7EA00C5F81EDA9DAA58B4A6C98E57DA1FBB9074AEFF0FE49F",
@@ -82,6 +81,14 @@ Vf5d/IETKbO1C+mRlPyhFhnmXy7f6g==
 def get_pki_certificate(device_name: str) -> Optional[bytes]:
     """Return the PKI certificate bytes for the given device, or None."""
     device_key = device_name.lower().replace(" ", "").replace("nano", "nano")
+    # Aliases not matched by substring rules (e.g. SDK folder "nanos2" vs DeviceType.nanosp).
+    aliases = {
+        "nanos2": "nanosp",
+        "nanosplus": "nanosp",
+        "apex_m": "nanosp",  # no dedicated Speculos TrustedName cert yet; same test key as CI
+    }
+    if device_key in aliases:
+        device_key = aliases[device_key]
     for key, val in PKI_CERTIFICATES_TRUSTED_NAME.items():
         if key in device_key or device_key in key:
             return bytes.fromhex(val)

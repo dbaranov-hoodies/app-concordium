@@ -148,7 +148,11 @@ typedef struct {
  * As the memory we have available is very limited, the context for each instruction is stored
  * in a shared global union, so that we do not use more memory than that of the most memory
  * consuming instruction context.
+ *
+ * trustedNamePki holds SET_TRUSTED_NAME TLV/hash state and (first field) the GET_CHALLENGE
+ * nonce — see trustedNamePki.h / challenge.c.
  */
+#include "trustedNamePki.h"
 typedef union {
     exportPrivateKeyContext_t exportPrivateKeyContext;
     exportPublicKeyContext_t exportPublicKeyContext;
@@ -164,6 +168,7 @@ typedef union {
     initContract_t initContract;
     updateContract_t updateContract;
     transactionWithDataBlob_t withDataBlob;
+    trustedNamePkiContext_t trustedNamePki;
 } instructionContext;
 extern instructionContext global;
 
