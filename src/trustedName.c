@@ -67,7 +67,7 @@ static void update_multi_hash(multi_hash_ctx_t *h, buffer_t data) {
     CX_ASSERT(cx_hash_update((cx_hash_t *) &h->sha512, data.ptr, data.size));
 }
 
-static int finalize_multi_hash(const multi_hash_ctx_t *h,
+static int finalize_multi_hash(multi_hash_ctx_t *h,
                                uint8_t signer_algo,
                                multi_hash_finalized_t *out) {
     cx_hash_t *hash;
@@ -260,7 +260,7 @@ static bool verify_challenge(const ccd_tlv_extracted_t *ctx) {
     return true;
 }
 
-static bool verify_signature(const ccd_tlv_extracted_t *ctx) {
+static bool verify_signature(ccd_tlv_extracted_t *ctx) {
     multi_hash_finalized_t finalized;
     if (finalize_multi_hash(&ctx->hash_ctx, ctx->signer_algo, &finalized) != 0) {
         return false;
@@ -334,8 +334,9 @@ void handleSetTrustedName(uint8_t *cdata, uint8_t p1, uint8_t p2, uint8_t lc) {
     }
 
     explicit_bzero(g_trusted_name, sizeof(g_trusted_name));
-    memmove(g_trusted_name, ctx.name, strlen(ctx.name));
-    g_trusted_name[strlen(ctx.name)] = '\0';
+    size_t name_len = strlen(ctx.name);
+    memmove(g_trusted_name, ctx.name, name_len);
+    g_trusted_name[name_len] = '\0';
 
     explicit_bzero(g_trusted_address, sizeof(g_trusted_address));
     uint8_t addr_len = (ctx.address.size <= TRUSTED_ADDRESS_MAX_SIZE) ? (uint8_t) ctx.address.size

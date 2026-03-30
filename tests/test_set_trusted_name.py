@@ -10,7 +10,13 @@ The TLV is built and signed in Python using ``trusted_name_helper.py`` with the
 same test key/certificate pair that Speculos accepts.
 
 Tests require a Speculos backend with a device that supports PKI (Nano S Plus or newer).
+
+PKI tests that need the **test** signer key (0x00) are skipped when the app was built
+without ``TRUSTED_NAME_TEST_KEY`` (e.g. release). Build with ``make DEBUG=1`` or
+``ENABLE_TRUSTED_NAME_TEST_KEY=1``.
 """
+
+from typing import Optional
 
 import pytest
 
@@ -42,6 +48,50 @@ from trusted_name_helper import (
 
 SW_INVALID_PARAM = 0x6B03
 
+# None = not probed yet; True = firmware accepts test PKI; False = release build, skip PKI tests
+_trusted_name_test_key_ok: Optional[bool] = None
+
+
+def _ensure_trusted_name_test_key(backend, client: CommandSender) -> None:
+    """Skip PKI tests if firmware was built without TRUSTED_NAME_TEST_KEY (production signer only)."""
+    global _trusted_name_test_key_ok
+    _requires_speculos_pki(backend)
+    if _trusted_name_test_key_ok is True:
+        return
+    if _trusted_name_test_key_ok is False:
+        pytest.skip(
+            "Firmware built without TRUSTED_NAME_TEST_KEY (release). "
+            "Rebuild with DEBUG=1 or ENABLE_TRUSTED_NAME_TEST_KEY=1 to run PKI tests."
+        )
+
+    cert = get_pki_certificate(_get_device_name(backend))
+    if cert is None:
+        pytest.skip(f"No PKI certificate for device {_get_device_name(backend)}")
+
+    client.load_pki_certificate(PKI_KEY_USAGE_TRUSTED_NAME, cert)
+    resp = client.get_challenge()
+    assert resp.status == StatusWords.SWO_SUCCESS
+    challenge = int.from_bytes(resp.data, "big")
+    builder = TrustedNameTlvBuilder(
+        name="probe",
+        address=b"\x00" * 32,
+        chain_id=1,
+        challenge=challenge,
+    )
+    payload = builder.build_signed()
+    try:
+        rapdu = client.set_trusted_name(payload)
+        status = rapdu.status
+    except ExceptionRAPDU as e:
+        status = e.status
+    if status != StatusWords.SWO_SUCCESS:
+        _trusted_name_test_key_ok = False
+        pytest.skip(
+            "Firmware built without TRUSTED_NAME_TEST_KEY (release). "
+            "Rebuild with DEBUG=1 or ENABLE_TRUSTED_NAME_TEST_KEY=1 to run PKI tests."
+        )
+    _trusted_name_test_key_ok = True
+
 
 def _expect_set_trusted_name_sw(
     client: CommandSender, data: bytes, *, p1: int = 0, p2: int = 0, expected_sw: int = SW_INVALID_PARAM
@@ -64,6 +114,7 @@ def _get_device_name(backend) -> str:
 
 def _load_pki_and_get_challenge(backend, client: CommandSender) -> int:
     """Load PKI certificate and get a fresh challenge. Returns challenge as int."""
+    _ensure_trusted_name_test_key(backend, client)
     cert = get_pki_certificate(_get_device_name(backend))
     if cert is None:
         pytest.skip(f"No PKI certificate for device {_get_device_name(backend)}")
@@ -159,6 +210,7 @@ def test_set_trusted_name_rejects_missing_challenge(backend):
     """TLV with all required fields except challenge -> reject."""
     _requires_speculos_pki(backend)
     client = CommandSender(backend)
+    _ensure_trusted_name_test_key(backend, client)
 
     cert = get_pki_certificate(_get_device_name(backend))
     if cert is None:
@@ -248,6 +300,7 @@ def test_set_trusted_name_rejects_without_get_challenge(backend):
     """SET_TRUSTED_NAME without prior GET_CHALLENGE -> reject (challenge is 0)."""
     _requires_speculos_pki(backend)
     client = CommandSender(backend)
+    _ensure_trusted_name_test_key(backend, client)
 
     cert = get_pki_certificate(_get_device_name(backend))
     if cert is None:

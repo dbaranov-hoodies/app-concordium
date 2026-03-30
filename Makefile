@@ -80,9 +80,16 @@ VARIANT_VALUES = CCD
 # Enabling DEBUG flag will enable PRINTF and disable optimizations
 #DEBUG = 1
 
-# Accept test signer key ID (0x00) for trusted name TLV in non-production builds.
-# Remove or guard behind ifdef DEBUG for release.
+# Accept test signer key ID (0x00) for trusted name TLV (Speculos / PKI tests).
+# - DEBUG=1: enabled for local dev (pytest skips PKI tests on release builds automatically).
+# - ENABLE_TRUSTED_NAME_TEST_KEY=1: optional (e.g. CI without DEBUG).
+# Production: plain `make` (no DEBUG, no ENABLE).
+ifeq ($(DEBUG),1)
 DEFINES += TRUSTED_NAME_TEST_KEY
+endif
+ifeq ($(ENABLE_TRUSTED_NAME_TEST_KEY),1)
+DEFINES += TRUSTED_NAME_TEST_KEY
+endif
 
 ########################################
 #     Application custom permissions   #
