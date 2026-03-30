@@ -37,7 +37,8 @@ typedef struct trustedNameTlvExtracted_s {
 } trustedNameTlvExtracted_t;
 
 typedef struct trustedNamePkiContext_s {
-    /** Written by GET_CHALLENGE; must survive SET_TRUSTED_NAME hash/tlv reset (see trustedName.c). */
+    /** Written by GET_CHALLENGE; must survive SET_TRUSTED_NAME hash/tlv reset (see trustedName.c).
+     */
     uint64_t stored_challenge;
     trustedNameMultiHashCtx_t hash_ctx;
     trustedNameTlvExtracted_t tlv;
