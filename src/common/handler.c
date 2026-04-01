@@ -17,7 +17,13 @@
  *         `io_send_sw(...)`. Unknown `INS` throws `SWO_INVALID_INS`.
  */
 int handler(const command_t *cmd, volatile unsigned int *flags, bool isInitialCall) {
+    // All Concordium APDUs are dispatched solely on INS. For each case we:
+    //   1. Enforce that cmd->data is present (the parser has already validated lc),
+    //   2. Delegate to the specific instruction handler.
+    // Multi‑step signing flows use |isInitialCall| on the first chunk; subsequent chunks
+    // resume the same flow until the handler completes and clears any UI flags.
     switch (cmd->ins) {
+        // ----- Public information / verification instructions (no state changes on‑chain) -----
         case INS_GET_PUBLIC_KEY:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
@@ -30,12 +36,14 @@ int handler(const command_t *cmd, volatile unsigned int *flags, bool isInitialCa
             }
             handleVerifyAddress(cmd, flags);
             break;
+        // ----- One‑shot signing flows (single APDU, no chunking) -----
         case INS_SIGN_TRANSFER:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
             }
             handleSignTransfer(cmd, flags);
             break;
+        // ----- Chunked / multi‑step signing flows (use |isInitialCall| on first chunk) -----
         case INS_SIGN_TRANSFER_WITH_MEMO:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
@@ -60,18 +68,22 @@ int handler(const command_t *cmd, volatile unsigned int *flags, bool isInitialCa
             }
             handleSignCredentialDeployment(cmd, flags, isInitialCall);
             break;
+        // ----- Maintenance / key‑management operations -----
         case INS_EXPORT_PRIVATE_KEY_LEGACY:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
             }
+            // Legacy BIP32 path format, kept for backwards compatibility.
             handleExportPrivateKeyLegacyPath(cmd, flags);
             break;
         case INS_EXPORT_PRIVATE_KEY_NEW:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
             }
+            // Preferred private‑key export path format for newer clients.
             handleExportPrivateKeyNewPath(cmd, flags);
             break;
+        // ----- Shielded / public balance conversions and on‑chain registrations -----
         case INS_TRANSFER_TO_PUBLIC:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
