@@ -14,7 +14,6 @@ This document lists all error codes that can be returned by the Concordium Ledge
 
 | Code   | Name                    | Description |
 |--------|------------------------|-------------|
-| `0x6982` | `SWO_SECURITY_CONDITION_NOT_SATISFIED` | Security status not satisfied (`status_words.h`; ISO7816-4). Not emitted by this app. |
 | `0x6985` | `SWO_CONDITIONS_NOT_SATISFIED` | Conditions of use not satisfied (`status_words.h`). User declined signing / approval (e.g. `sendUserRejectionNoIdle`). |
 | `0x6E00` | `SWO_INVALID_CLA`        | Invalid CLA byte in APDU header (`status_words.h`) |
 | `0x6D00` | `SWO_INVALID_INS`        | Invalid instruction byte in APDU header (`status_words.h`) |
