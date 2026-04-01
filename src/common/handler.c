@@ -3,6 +3,18 @@
 #include "getAppName.h"
 #include "get_app_version.h"
 
+/**
+ * Central APDU dispatcher for the Concordium app (CLA is checked in app_main).
+ * Validates cdata presence (and P1/P2 for some instructions), then dispatches on `cmd->ins`
+ * to the instruction handler. Multi-step signing flows use `isInitialCall` on the first chunk.
+ *
+ * @param cmd            Parsed APDU (`command_t`: ins, p1, p2, lc, data).
+ * @param flags          BOLOS/UI flags for asynchronous signing and navigation.
+ * @param isInitialCall  True on the first invocation of this instruction for the current transaction.
+ *
+ * @return 0 after a handler runs to completion; validation failures return the value from
+ *         `io_send_sw(...)`. Unknown `INS` throws `SWO_INVALID_INS`.
+ */
 int handler(const command_t *cmd, volatile unsigned int *flags, bool isInitialCall) {
     switch (cmd->ins) {
         case INS_GET_PUBLIC_KEY:
