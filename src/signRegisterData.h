@@ -6,9 +6,7 @@
  * Handles the signing flow, including updating the display, for the 'register data'
  * account transaction. Command data: see /doc/ins_register_data.md.
  */
-void handleSignRegisterData(const command_t *cmd,
-                            volatile unsigned int *flags,
-                            bool isInitialCall);
+void handleSignRegisterData(const command_t *cmd, volatile unsigned int *flags, bool isInitialCall);
 
 typedef enum {
     TX_REGISTER_DATA_INITIAL = 57,

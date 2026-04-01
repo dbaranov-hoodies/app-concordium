@@ -8,6 +8,16 @@ void handleSignCredentialDeployment(const command_t *cmd,
                                     volatile unsigned int *flags,
                                     bool isInitialCall);
 
+/**
+ * Handle signing an **update credentials** account transaction (`UPDATE_CREDENTIALS`).
+ * Consumes the APDU stream by P1/P2 sub-steps (path, header, credential indices, IDs, threshold),
+ * updates the transaction hash, and runs the approval UI until the user confirms or rejects.
+ *
+ * @param cmd            Parsed APDU (`command_t`: p1/p2/lc and cdata).
+ * @param flags          BOLOS/UI flags for the asynchronous signing flow.
+ * @param isInitialCall  True on the first handler call for this transaction (resets internal
+ * state).
+ */
 void handleSignUpdateCredential(const command_t *cmd,
                                 volatile unsigned int *flags,
                                 bool isInitialCall);

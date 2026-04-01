@@ -124,12 +124,8 @@ void handleSignUpdateCredential(const command_t *cmd,
     } else if (p2 == P2_CREDENTIAL_CREDENTIAL &&
                ctx->updateCredentialState == TX_UPDATE_CREDENTIAL_CREDENTIAL &&
                ctx->credentialDeploymentCount > 0) {
-        command_t sub = {.cla = cmd->cla,
-                        .ins = cmd->ins,
-                        .p1 = p1,
-                        .p2 = p2,
-                        .lc = lc,
-                        .data = dataBuffer};
+        command_t sub =
+            {.cla = cmd->cla, .ins = cmd->ins, .p1 = p1, .p2 = p2, .lc = lc, .data = dataBuffer};
         handleSignCredentialDeployment(&sub, flags, false);
     } else if (p2 == P2_CREDENTIAL_ID_COUNT &&
                ctx->updateCredentialState == TX_UPDATE_CREDENTIAL_ID_COUNT) {
