@@ -134,9 +134,9 @@ def navigate_until_text_and_compare(
 
 
 def _read_makefile() -> List[str]:
-    """Read lines from the parent Makefile """
+    """Read lines from the app Makefile at repository root (next to this file: ``tests/standalone/utils.py``)."""
 
-    makefile = Path(__file__).resolve().parents[1] / "Makefile"
+    makefile = Path(__file__).resolve().parents[2] / "Makefile"
     with open(makefile, "r", encoding="utf-8") as f_p:
         lines = f_p.readlines()
     return lines
