@@ -17,10 +17,22 @@
 
 #include "globals.h"
 
+#include <string.h>
+
+#include <io.h>
+#include <os.h>
+#include <parser.h>
+#include <status_words.h>
+
+#include "apdu/dispatcher.h"
+#include "derivation_path.h"
+#include "menu.h"
+#include "set_trusted_name.h"
+
 derivation_path_t global_derivation_path;
 tx_state_t global_tx_state;
 
-/** Single definition of the instruction union (see extern in globals.h). */
+/** Single definition of the instruction union (see `instruction_context.h`). */
 instructionContext global;
 
 const internal_storage_t N_storage_real;
@@ -98,9 +110,9 @@ void app_main() {
             isInitialCall = true;
         }
 
-        // Dispatch structured APDU command to handler
-        if (handler(&cmd, &flags, isInitialCall) < 0) {
-            PRINTF("=> handler failure\n");
+        // Dispatch structured APDU command
+        if (apdu_dispatcher(&cmd, &flags, isInitialCall) < 0) {
+            PRINTF("=> apdu_dispatcher failure\n");
             return;
         }
     }

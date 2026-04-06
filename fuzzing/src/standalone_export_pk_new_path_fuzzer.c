@@ -17,7 +17,7 @@ typedef struct {
     uint8_t lc;
     uint8_t *data;
 } command_t;
-// Mirrors src/common/util/derivation_path.h — derivation_path_key_idx_t
+// Mirrors src/helpers/derivation_path.h — derivation_path_key_idx_t
 // Values are the last path segment index for each exportable key (BIP32 child index).
 typedef enum {
     LEGACY_ID_CRED_SEC = 0,
@@ -33,11 +33,11 @@ typedef enum {
 #define ERROR_INVALID_PATH  0x6A80
 #define SUCCESS             0x9000
 
-// Constants from exportPrivateKey.h
+// Constants from src/helpers/export_private_key.h
 #define MAX_KEYS_TO_EXPORT          3
 #define LENGTH_AND_PRIVATE_KEY_SIZE 33
 
-// Purpose constants (from exportPrivateKey.h)
+// Purpose constants (from src/helpers/export_private_key.h)
 #define P1_IDENTITY_CREDENTIAL_CREATION 0x00
 #define P1_ACCOUNT_CREATION             0x01
 #define P1_ID_RECOVERY                  0x02
