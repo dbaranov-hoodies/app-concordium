@@ -1,4 +1,4 @@
-#include "sign.h"
+#include "cbor_data_blob.h"
 
 #include "globals.h"
 
@@ -9,10 +9,10 @@
 #include <io.h>
 #include <status_words.h>
 
-#include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "numberHelpers.h"
+
+#define UINT64_MAX_DECIMAL_DIGITS 20
 
 // CBOR encoding constants
 #define CBOR_SHORT_COUNT_MAX   23  // Values below this are direct length
@@ -25,21 +25,7 @@
 // Mask and bit shifts
 #define CBOR_SHORT_COUNT_MASK 0x1F  // 5 lower bits
 
-static tx_state_t *tx_state = &global_tx_state;
 static cborContext_t *ctx = &global.withDataBlob.cborContext;
-
-// Hashes transaction, signs it and sends the signature back to the computer.
-void buildAndSignTransactionHash(void) {
-    hash((cx_hash_t *) &tx_state->hash, CX_LAST, NULL, 0, tx_state->transactionHash, KEY_LENGTH);
-
-    uint8_t signedHash[ED25519_SIGNATURE_LENGTH];
-    sign(tx_state->transactionHash, signedHash);
-    if (sizeof(signedHash) > sizeof(G_io_apdu_buffer)) {
-        THROW(ERROR_BUFFER_OVERFLOW);
-    }
-    memmove(G_io_apdu_buffer, signedHash, sizeof(signedHash));
-    send_success(sizeof(signedHash));
-}
 
 void readCborInitial(uint8_t *cdata, uint8_t dataLength) {
     uint8_t remainingDataLength = dataLength;

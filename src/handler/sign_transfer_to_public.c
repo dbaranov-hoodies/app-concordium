@@ -7,8 +7,7 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "base58check.h"
 #include "derivation_path.h"
 #include "display.h"
@@ -58,7 +57,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
         if (remainingDataLength < 192) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 192);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 192);
         cdata += 192;
         remainingDataLength -= 192;
 
@@ -68,7 +67,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
         }
         uint64_t amountToPublic = U8BE(cdata, 0);
         amount_to_gtu_display(ctx->amount, sizeof(ctx->amount), amountToPublic);
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         cdata += 8;
         remainingDataLength -= 8;
 
@@ -81,7 +80,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->recipientAddress[55] = '\0';
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 32);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 32);
         cdata += 32;
         remainingDataLength -= 32;
 
@@ -89,7 +88,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
         if (remainingDataLength < 8) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         cdata += 8;
         remainingDataLength -= 8;
 
@@ -102,7 +101,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
         ctx->state = TX_TRANSFER_TO_PUBLIC_PROOF;
         send_success_no_idle();
     } else if (p1 == P1_PROOF && ctx->state == TX_TRANSFER_TO_PUBLIC_PROOF) {
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
         if (ctx->proofSize == dataLength) {
             // We have received all proof bytes, continue to signing flow.

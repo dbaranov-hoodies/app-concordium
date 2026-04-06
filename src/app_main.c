@@ -25,29 +25,13 @@
 #include <status_words.h>
 
 #include "apdu/dispatcher.h"
-#include "derivation_path.h"
 #include "menu.h"
 #include "set_trusted_name.h"
 
-derivation_path_t global_derivation_path;
-tx_state_t global_tx_state;
-
-/** Single definition of the instruction union (see `instruction_context.h`). */
-instructionContext global;
-
-const internal_storage_t N_storage_real;
-
-// The Ledger uses APDU commands
-// (https://en.wikipedia.org/wiki/Smart_card_application_protocol_data_unit) for performing actions.
-// The INS byte contains the instruction code that determines which action to perform.
-#define OFFSET_CLA   0x00
-#define OFFSET_INS   0x01
-#define OFFSET_P1    0x02
-#define OFFSET_P2    0x03
-#define OFFSET_LC    0x04
-#define OFFSET_CDATA 0x05
-
-void *global_state;
+/**
+ * Instruction class of the Concordium application.
+ */
+#define CLA 0xE0
 
 // Main entry of application that listens for APDU commands that will be received from the
 // computer. The APDU commands control what flow is activated, i.e. which control flow is initiated.
@@ -65,15 +49,6 @@ void app_main() {
     g_trusted_address_len = 0;
     g_trusted_name_valid = false;
     ui_menu_main();
-
-    // Initialize the NVM data if required
-    if (N_storage.initialized != STORAGE_INITIALIZED) {
-        internal_storage_t storage;
-        storage.dummy1_allowed = STORAGE_DEFAULT;
-        storage.dummy2_allowed = STORAGE_DEFAULT;
-        storage.initialized = STORAGE_INITIALIZED;
-        nvm_write((void *) &N_storage, &storage, sizeof(internal_storage_t));
-    }
 
     for (;;) {
         // Receive command bytes in G_io_apdu_buffer

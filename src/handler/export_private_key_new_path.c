@@ -7,10 +7,11 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
+#include "concordium_crypto.h"
 #include "format.h"
+#include "display.h"
 #include "numberHelpers.h"
-#include "export_private_key.h"
+
 #include "export_private_key_new_path.h"
 #include "derivation_path.h"
 
@@ -136,13 +137,13 @@ int exportNewPathPrivateKeysForPurpose(uint8_t purpose,
         outputPrivateKey[tx++] = KEY_LENGTH;
         if (keysToExport[keyIndex] == NEW_COMMITMENT_RANDOMNESS) {
             // export raw key
-            getPrivateKey(&subpath, &tempPrivateKeyEd25519);
+            get_private_key(&subpath, &tempPrivateKeyEd25519);
             for (int i = 0; i < KEY_LENGTH; i++) {
                 tempPrivateKey[i] = tempPrivateKeyEd25519.d[i];
             }
         } else {
             // export bls key
-            getBlsPrivateKey(&subpath, tempPrivateKey, sizeof(tempPrivateKey));
+            get_bls_private_key(&subpath, tempPrivateKey, sizeof(tempPrivateKey));
         }
 
         for (int i = 0; i < KEY_LENGTH; i++) {

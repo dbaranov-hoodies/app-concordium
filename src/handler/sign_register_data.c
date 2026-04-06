@@ -7,11 +7,10 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "derivation_path.h"
 #include "display.h"
-#include "sign.h"
+#include "cbor_data_blob.h"
 #include "tx_hash.h"
 
 #include "sign_register_data.h"
@@ -59,7 +58,7 @@ void handle_sign_register_data(const command_t *cmd,
             THROW(ERROR_INVALID_PARAM);
         }
         data_ctx->cborLength = ctx->dataLength;
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 2);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 2);
 
         ctx->state = TX_REGISTER_DATA_PAYLOAD_START;
 
@@ -70,7 +69,7 @@ void handle_sign_register_data(const command_t *cmd,
             THROW(ERROR_INVALID_TRANSACTION);
         }
         ctx->dataLength -= dataLength;
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
         switch (ctx->state) {
             case TX_REGISTER_DATA_PAYLOAD_START:

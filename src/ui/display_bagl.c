@@ -7,7 +7,12 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "sign.h"
+#include "cbor_data_blob.h"
+#include "get_public_key.h"
+#include "sign_configure_baker.h"
+#include "sign_credential_deployment.h"
+#include "sign_transfer_schedule.h"
+#include "tx_hash.h"
 
 #include "display.h"
 #include "display_bagl.h"
@@ -464,7 +469,10 @@ void startConfigureDelegationDisplay(void) {
 
 // Credential deployment
 
-UX_STEP_CB(ux_credential_deployment_review_details, nn, send_success_no_idle(), {"Review", "details"});
+UX_STEP_CB(ux_credential_deployment_review_details,
+           nn,
+           send_success_no_idle(),
+           {"Review", "details"});
 
 UX_STEP_CB(ux_update_credentials_initial_flow_1_step,
            nn,

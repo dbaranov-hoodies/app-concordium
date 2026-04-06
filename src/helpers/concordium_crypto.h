@@ -22,7 +22,7 @@ extern const uint8_t BLS_G1_ORDER[32];
 /** HKDF salt prefix length for BLS keygen ("BLS-SIG-KEYGEN-SALT-" …). */
 #define BLS_SALT_INITIAL_LENGTH 20
 
-void getPrivateKey(const derivation_path_t *path, cx_ecfp_private_key_t *privateKey);
+void get_private_key(const derivation_path_t *path, cx_ecfp_private_key_t *privateKey);
 
 /**
  * Public key for global_derivation_path (32 bytes, Concordium format).
@@ -39,7 +39,7 @@ void hash(cx_hash_t *hash,
           unsigned char *out,
           unsigned int out_len);
 
-void updateHash(cx_hash_t *hash, const unsigned char *in, unsigned int len);
+void update_hash(cx_hash_t *hash, const unsigned char *in, unsigned int len);
 
 /** BLS12-381 private key from Ed25519 seed at path (HKDF keygen). */
-void getBlsPrivateKey(const derivation_path_t *path, uint8_t *privateKey, size_t privateKeySize);
+void get_bls_private_key(const derivation_path_t *path, uint8_t *privateKey, size_t privateKeySize);

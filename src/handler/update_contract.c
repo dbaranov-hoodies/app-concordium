@@ -7,8 +7,7 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "derivation_path.h"
 #include "display.h"
 #include "numberHelpers.h"
@@ -49,7 +48,7 @@ void handle_update_contract(const command_t *cmd) {
         if (remainingDataLength < 8) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         // extract the amount
         ctx_update_contract->amount = U8BE(cdata, 0);
         // Format the amount
@@ -62,7 +61,7 @@ void handle_update_contract(const command_t *cmd) {
         if (remainingDataLength < 8) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         // extract the index
         uint64_t index = U8BE(cdata, 0);
         // format the index
@@ -76,7 +75,7 @@ void handle_update_contract(const command_t *cmd) {
         if (remainingDataLength < 8) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         // extract the sub index
         uint64_t subIndex = U8BE(cdata, 0);
         // format the sub index
@@ -104,7 +103,7 @@ void handle_update_contract(const command_t *cmd) {
             THROW(ERROR_INVALID_NAME_LENGTH);
         }
         // hash the whole chunk
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, lc);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, lc);
         // subtract the length of the chunk from the remaining name length
         ctx_update_contract->remainingNameLength -= lc;
         if (ctx_update_contract->remainingNameLength > 0) {
@@ -131,7 +130,7 @@ void handle_update_contract(const command_t *cmd) {
             THROW(ERROR_INVALID_PARAMS_LENGTH);
         }
         // hash the whole chunk
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, lc);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, lc);
         // subtract the length of the chunk from the remaining params length
         ctx_update_contract->remainingParamsLength -= lc;
         if (ctx_update_contract->remainingParamsLength > 0) {

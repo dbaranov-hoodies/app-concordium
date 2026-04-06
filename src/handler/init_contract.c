@@ -8,8 +8,7 @@
 #include <format.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "derivation_path.h"
 #include "display.h"
 #include "numberHelpers.h"
@@ -51,7 +50,7 @@ void handle_init_contract(const command_t *cmd) {
             THROW(SWO_INCORRECT_DATA);
         }
         // hash the amount
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         // extract the amount
         ctx_init_contract->amount = U8BE(cdata, 0);
         // Format the amount
@@ -64,7 +63,7 @@ void handle_init_contract(const command_t *cmd) {
             THROW(SWO_INCORRECT_DATA);
         }
         // hash the module ref
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 32);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 32);
         // extract the module ref
         memmove(ctx_init_contract->moduleRef, cdata, 32);
         // Format the module ref
@@ -92,7 +91,7 @@ void handle_init_contract(const command_t *cmd) {
             THROW(ERROR_INVALID_NAME_LENGTH);
         }
         // hash the whole chunk
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, lc);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, lc);
         // subtract the length of the chunk from the remaining name length
         ctx_init_contract->remainingNameLength -= lc;
         if (ctx_init_contract->remainingNameLength > 0) {
@@ -118,7 +117,7 @@ void handle_init_contract(const command_t *cmd) {
             THROW(ERROR_INVALID_PARAMS_LENGTH);
         }
         // hash the whole chunk
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, lc);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, lc);
         // subtract the length of the chunk from the remaining params length
         ctx_init_contract->remainingParamsLength -= lc;
         if (ctx_init_contract->remainingParamsLength > 0) {

@@ -6,8 +6,7 @@
 #include <parser.h>
 #include <status_words.h>
 
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "display.h"
 #include "numberHelpers.h"
 #include "tx_hash.h"
@@ -46,7 +45,7 @@ void handle_sign_transfer_with_schedule(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->remainingNumberOfScheduledAmounts = cdata[0];
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
 
         ctx->state = TX_TRANSFER_WITH_SCHEDULE_TRANSFER_PAIRS;
         startInitialScheduledTransferDisplay(false);

@@ -7,8 +7,7 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "derivation_path.h"
 #include "display.h"
 #include "numberHelpers.h"
@@ -48,7 +47,7 @@ void handle_deploy_module(const command_t *cmd) {
         if (remainingDataLength < 8) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         ctx_deploy_module->version = U4BE(cdata, 0);
         ctx_deploy_module->sourceLength = U4BE(cdata, 4);
         ctx_deploy_module->remainingSourceLength = ctx_deploy_module->sourceLength;
@@ -63,7 +62,7 @@ void handle_deploy_module(const command_t *cmd) {
         if (ctx_deploy_module->remainingSourceLength < lc) {
             THROW(ERROR_INVALID_SOURCE_LENGTH);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, lc);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, lc);
         ctx_deploy_module->remainingSourceLength -= lc;
         if (ctx_deploy_module->remainingSourceLength > 0) {
             send_success_no_idle();

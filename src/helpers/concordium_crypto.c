@@ -3,7 +3,9 @@
 #include <os.h>
 #include <cx.h>
 
-#include "app_crypto.h"
+#include "cx_hkdf.h"
+
+#include "concordium_crypto.h"
 
 static void ensureNoError(cx_err_t errorCode) {
     if (errorCode != CX_OK) {
@@ -18,22 +20,6 @@ const uint8_t BLS_G1_ORDER[32] = {0x73, 0xed, 0xa7, 0x53, 0x29, 0x9d, 0x7d, 0x48
 #define l_CONST        48  // ceil((3 * ceil(log2(BLS_G1_ORDER))) / 16)
 #define BLS_KEY_LENGTH 32
 #define SEED_LENGTH    32
-
-// We must declare the functions for the static analyzer. Ideally we would have
-// access to the declarations from the Ledger SDK.
-void cx_hkdf_extract(const cx_md_t hash_id,
-                     const unsigned char *ikm,
-                     unsigned int ikm_len,
-                     unsigned char *salt,
-                     unsigned int salt_len,
-                     unsigned char *prk);
-void cx_hkdf_expand(const cx_md_t hash_id,
-                    const unsigned char *prk,
-                    unsigned int prk_len,
-                    unsigned char *info,
-                    unsigned int info_len,
-                    unsigned char *okm,
-                    unsigned int okm_len);
 
 static const uint8_t l_bytes[2] = {0, l_CONST};
 
@@ -75,7 +61,7 @@ static void blsKeygen(const uint8_t *seed, size_t seedLength, uint8_t *dst, size
     memmove(dst, sk + l_CONST - BLS_KEY_LENGTH, BLS_KEY_LENGTH);
 }
 
-void getPrivateKey(const derivation_path_t *path, cx_ecfp_private_key_t *privateKey) {
+void get_private_key(const derivation_path_t *path, cx_ecfp_private_key_t *privateKey) {
     uint8_t privateKeyData[ED25519_SIGNATURE_LENGTH];
 
     BEGIN_TRY {
@@ -106,7 +92,7 @@ void get_public_key(uint8_t *publicKeyArray) {
 
     BEGIN_TRY {
         TRY {
-            getPrivateKey(&global_derivation_path, &privateKey);
+            get_private_key(&global_derivation_path, &privateKey);
             ensureNoError(
                 cx_ecfp_generate_pair_no_throw(CX_CURVE_Ed25519, &publicKey, &privateKey, 1));
         }
@@ -129,7 +115,7 @@ void sign(uint8_t *input, uint8_t *signatureOnInput) {
 
     BEGIN_TRY {
         TRY {
-            getPrivateKey(&global_derivation_path, &privateKey);
+            get_private_key(&global_derivation_path, &privateKey);
             ensureNoError(cx_eddsa_sign_no_throw(&privateKey,
                                                  CX_SHA512,
                                                  input,
@@ -153,15 +139,15 @@ void hash(cx_hash_t *hashContext,
     ensureNoError(cx_hash_no_throw(hashContext, mode, in, len, out, out_len));
 }
 
-void updateHash(cx_hash_t *hashContext, const unsigned char *in, unsigned int len) {
+void update_hash(cx_hash_t *hashContext, const unsigned char *in, unsigned int len) {
     hash(hashContext, 0, in, len, NULL, 0);
 }
 
-void getBlsPrivateKey(const derivation_path_t *path, uint8_t *privateKey, size_t privateKeySize) {
+void get_bls_private_key(const derivation_path_t *path, uint8_t *privateKey, size_t privateKeySize) {
     cx_ecfp_private_key_t privateKeySeed;
     BEGIN_TRY {
         TRY {
-            getPrivateKey(path, &privateKeySeed);
+            get_private_key(path, &privateKeySeed);
             blsKeygen(privateKeySeed.d, sizeof(privateKeySeed.d), privateKey, privateKeySize);
         }
         FINALLY {

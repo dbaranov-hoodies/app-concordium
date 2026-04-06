@@ -192,7 +192,7 @@ void getIdentityAccountDisplayNewPath(uint8_t *dst,
 /**
  * Apply HARDENED_BIT (0x80000000) to all nodes in the path.
  *
- * Parsers output unhardened nodes; getBlsPrivateKey expects hardened form.
+ * Parsers output unhardened nodes; get_bls_private_key expects hardened form.
  *
  * @param path Derivation path to harden (modified in place)
  */
@@ -207,15 +207,3 @@ static inline void unharden_derivation_path(derivation_path_t *derivation_path) 
         derivation_path->nodes[i] &= ~HARDENED_BIT;
     }
 }
-
-/**
- * Current-command derivation path; defined in app_main.c.
- *
- * Overwritten on each APDU. The main loop processes one command at a time, so it is never shared
- * across concurrent commands. For multi-step flows (e.g. signing), the path is parsed at flow start
- * and must be re-parsed or re-established before use by subsequent APDUs.
- *
- * Used by parseKeyDerivationPath (sign / get public key), export private key, and verify address
- * (not duplicated inside instruction union members).
- */
-extern derivation_path_t global_derivation_path;

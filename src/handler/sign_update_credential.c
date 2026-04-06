@@ -7,7 +7,7 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
+#include "concordium_crypto.h"
 #include "derivation_path.h"
 #include "display.h"
 #include "numberHelpers.h"
@@ -56,7 +56,7 @@ void handle_sign_update_credential(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->credentialDeploymentCount = dataBuffer[0];
-        updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
         if (ctx->credentialDeploymentCount == 0) {
             ctx->updateCredentialState = TX_UPDATE_CREDENTIAL_ID_COUNT;
         } else {
@@ -71,7 +71,7 @@ void handle_sign_update_credential(const command_t *cmd,
         if (remainingDataLength < 1) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
         ctx->updateCredentialState = TX_UPDATE_CREDENTIAL_CREDENTIAL;
         send_success_no_idle();
     } else if (p2 == P2_CREDENTIAL_CREDENTIAL &&
@@ -86,7 +86,7 @@ void handle_sign_update_credential(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->credentialIdCount = dataBuffer[0];
-        updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
 
         if (ctx->credentialIdCount == 0) {
             ctx->updateCredentialState = TX_UPDATE_CREDENTIAL_THRESHOLD;
@@ -98,7 +98,7 @@ void handle_sign_update_credential(const command_t *cmd,
         if (remainingDataLength < 48) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 48);
+        update_hash((cx_hash_t *) &tx_state->hash, dataBuffer, 48);
         to_paginated_hex(dataBuffer, 48, ctx->credentialId, sizeof(ctx->credentialId));
 
         ctx->credentialIdCount -= 1;
@@ -114,7 +114,7 @@ void handle_sign_update_credential(const command_t *cmd,
         }
         uint8_t threshold = dataBuffer[0];
         bin_to_dec(ctx->threshold, sizeof(ctx->threshold), threshold);
-        updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
 
         uiSignUpdateCredentialThresholdDisplay(flags);
 

@@ -8,8 +8,7 @@
 #include <parser.h>
 #include <status_words.h>
 
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "derivation_path.h"
 #include "display.h"
 #include "numberHelpers.h"
@@ -45,7 +44,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
     if (remainingDataLength < 2) {
         THROW(SWO_INCORRECT_DATA);
     }
-    updateHash((cx_hash_t *) &tx_state->hash, cdata, 2);
+    update_hash((cx_hash_t *) &tx_state->hash, cdata, 2);
     uint16_t bitmap = U2BE(cdata, 0);
     cdata += 2;
     remainingDataLength -= 2;
@@ -72,7 +71,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
             ctx->stopDelegation = false;
             amount_to_gtu_display(ctx->displayCapital, sizeof(ctx->displayCapital), capitalAmount);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         expectedDataLength += 8;
         cdata += 8;
         remainingDataLength -= 8;
@@ -83,7 +82,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
             THROW(SWO_INCORRECT_DATA);
         }
         uint8_t restake = cdata[0];
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
         expectedDataLength += 1;
         cdata += 1;
         remainingDataLength -= 1;
@@ -101,7 +100,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
             THROW(SWO_INCORRECT_DATA);
         }
         uint8_t delegationType = cdata[0];
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
         expectedDataLength += 1;
         cdata += 1;
         remainingDataLength -= 1;
@@ -115,7 +114,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
             expectedDataLength += 8;
             memmove(ctx->displayDelegationTarget, "Baker ID ", 9);
             bin_to_dec(ctx->displayDelegationTarget + 9, 21, bakerId);
-            updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+            update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
         } else {
             THROW(ERROR_INVALID_TRANSACTION);
         }

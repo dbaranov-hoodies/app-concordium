@@ -7,8 +7,7 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "display.h"
 #include "numberHelpers.h"
 #include "tx_hash.h"
@@ -33,7 +32,7 @@ void processNextScheduledAmount(uint8_t *buffer) {
             THROW(ERROR_BUFFER_OVERFLOW);
         }
         uint64_t timestamp = U8BE(ctx->buffer, ctx->pos) / 1000;
-        updateHash((cx_hash_t *) &tx_state->hash, buffer + ctx->pos, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, buffer + ctx->pos, 8);
         ctx->pos += 8;
         int valid = secondsToTm(timestamp, &ctx->time);
         if (valid != 0) {
@@ -50,7 +49,7 @@ void processNextScheduledAmount(uint8_t *buffer) {
             THROW(ERROR_BUFFER_OVERFLOW);
         }
         uint64_t amount = U8BE(ctx->buffer, ctx->pos);
-        updateHash((cx_hash_t *) &tx_state->hash, buffer + ctx->pos, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, buffer + ctx->pos, 8);
         ctx->pos += 8;
         amount_to_gtu_display(ctx->displayAmount, sizeof(ctx->displayAmount), amount);
 
@@ -98,7 +97,7 @@ void handle_transfer_pairs(uint8_t *cdata, uint8_t dataLength, volatile unsigned
 }
 
 void finish_memo_scheduled(volatile unsigned int *flags) {
-    updateHash((cx_hash_t *) &tx_state->hash, &ctx->remainingNumberOfScheduledAmounts, 1);
+    update_hash((cx_hash_t *) &tx_state->hash, &ctx->remainingNumberOfScheduledAmounts, 1);
     ctx->state = TX_TRANSFER_WITH_SCHEDULE_TRANSFER_PAIRS;
     startInitialScheduledTransferDisplay(true);
     *flags |= IO_ASYNCH_REPLY;

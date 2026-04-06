@@ -11,8 +11,6 @@ typedef struct {
     int currentInstruction;
 } tx_state_t;
 
-extern tx_state_t global_tx_state;
-
 /** Account sender from parsed transaction header (UI). */
 typedef struct {
     uint8_t sender[COMMON_ADDRESS_SIZE];

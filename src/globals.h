@@ -2,77 +2,18 @@
 
 #include <stdint.h>
 
-#include <os.h>
-
 #include "instruction_context.h"
 #include "tx_state.h"
 
-/** Application version triplet length (GET_VERSION / Makefile). */
-#define APPVERSION_LEN 3
-#ifndef MAJOR_VERSION
-#error "Major version not set"
-#endif
-#ifndef MINOR_VERSION
-#error "Minor version not set"
-#endif
-#ifndef PATCH_VERSION
-#error "Patch version not set"
-#endif
-
 /**
- * Instruction class of the Concordium application.
+ * Current-command derivation path and tx hash / instruction state. Storage in `globals.c`.
+ * Path is overwritten per APDU; for multi-step flows it is set at flow start.
  */
-#define CLA 0xE0
-
-/**
- * Length of APPNAME variable in the Makefile.
- */
-#define APPNAME_LEN (sizeof(APPNAME) - 1)
-
-/**
- * Maximum length of application name.
- */
-#define MAX_APPNAME_LEN 64
-
-/**
- * P2 value for more data
- */
-#define P2_MORE 0x80
-
-typedef enum {
-    DEPLOY_MODULE = 0,
-    INIT_CONTRACT = 1,
-    UPDATE_CONTRACT = 2,
-    TRANSFER = 3,
-    UPDATE_CREDENTIAL_KEYS = 13,
-    TRANSFER_TO_PUBLIC = 18,
-    TRANSFER_WITH_SCHEDULE = 19,
-    UPDATE_CREDENTIALS = 20,
-    REGISTER_DATA = 21,
-    TRANSFER_WITH_MEMO = 22,
-    TRANSFER_WITH_SCHEDULE_WITH_MEMO = 24,
-    CONFIGURE_BAKER = 25,
-    CONFIGURE_DELEGATION = 26,
-} transactionKind_e;
-
-/** Credential deployment UI continuation; implementation in handler/sign_credential_deployment.c */
-void processNextVerificationKey(void);
-
-typedef struct internal_storage_t {
-    uint8_t dummy1_allowed;
-    uint8_t dummy2_allowed;
-    uint8_t initialized;
-} internal_storage_t;
-
-#define STORAGE_INITIALIZED 0x01
-#define STORAGE_DEFAULT     0x00
+extern derivation_path_t global_derivation_path;
+extern tx_state_t global_tx_state;
 
 /** Sentinel for no active instruction (before first command) */
 #define INSTRUCTION_NONE -1
-
-extern const internal_storage_t N_storage_real;
-
-#define N_storage (*(volatile internal_storage_t *) PIC(&N_storage_real))
 
 /*
  * Concordium-specific status words (0x6B01–0x6B0B, 0x530C). ISO7816 reserves 6Bxx for

@@ -8,7 +8,8 @@
 #include <parser.h>
 #include <status_words.h>
 
-#include "app_crypto.h"
+#include "concordium_crypto.h"
+#include "apdu/apdu_response.h"
 #include "base58check.h"
 #include "numberHelpers.h"
 
@@ -30,7 +31,7 @@ static int hashHeaderAndType(uint8_t *cdata,
         PRINTF("Issue with length\n");
         THROW(ERROR_INVALID_TRANSACTION);
     }
-    updateHash((cx_hash_t *) &tx_state->hash, cdata, headerLength);
+    update_hash((cx_hash_t *) &tx_state->hash, cdata, headerLength);
     cdata += headerLength;
 
     uint8_t type = cdata[0];
@@ -38,7 +39,7 @@ static int hashHeaderAndType(uint8_t *cdata,
         PRINTF("Received kind is different than the expected one\n");
         THROW(ERROR_INVALID_TRANSACTION);
     }
-    updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+    update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
 
     return headerLength + 1;
 }
@@ -91,7 +92,7 @@ int handleHeaderAndToAddress(uint8_t *cdata,
         THROW(ERROR_INVALID_TRANSACTION);
     }
     memmove(toAddress, cdata, ADDRESS_LENGTH);
-    updateHash((cx_hash_t *) &tx_state->hash, toAddress, ADDRESS_LENGTH);
+    update_hash((cx_hash_t *) &tx_state->hash, toAddress, ADDRESS_LENGTH);
 
     if (base58check_encode(toAddress, sizeof(toAddress), recipientDst, &recipientSize) == -1) {
         THROW(ERROR_INVALID_TRANSACTION);
@@ -106,11 +107,24 @@ int handleHeaderAndToAddress(uint8_t *cdata,
 size_t hashAndLoadU64Ratio(uint8_t *cdata, uint8_t *dst, uint8_t sizeOfDst) {
     uint64_t numerator = U8BE(cdata, 0);
     uint64_t denominator = U8BE(cdata, 8);
-    updateHash((cx_hash_t *) &tx_state->hash, cdata, U64_RATIO_BYTES);
+    update_hash((cx_hash_t *) &tx_state->hash, cdata, U64_RATIO_BYTES);
     int numLength = number_to_text(dst, sizeOfDst, numerator);
     memmove(dst + numLength, U64_RATIO_SEPARATOR, U64_RATIO_SEPARATOR_LEN);
     number_to_text(dst + numLength + U64_RATIO_SEPARATOR_LEN,
                    sizeOfDst - (numLength + U64_RATIO_SEPARATOR_LEN),
                    denominator);
     return U64_RATIO_BYTES;
+}
+
+// Hashes transaction, signs it and sends the signature back to the computer.
+void buildAndSignTransactionHash(void) {
+    hash((cx_hash_t *) &tx_state->hash, CX_LAST, NULL, 0, tx_state->transactionHash, KEY_LENGTH);
+
+    uint8_t signedHash[ED25519_SIGNATURE_LENGTH];
+    sign(tx_state->transactionHash, signedHash);
+    if (sizeof(signedHash) > sizeof(G_io_apdu_buffer)) {
+        THROW(ERROR_BUFFER_OVERFLOW);
+    }
+    memmove(G_io_apdu_buffer, signedHash, sizeof(signedHash));
+    send_success(sizeof(signedHash));
 }

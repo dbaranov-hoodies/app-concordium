@@ -7,7 +7,6 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_encoding.h"
 
 #include "buffer.h"
 #include "ledger_pki.h"

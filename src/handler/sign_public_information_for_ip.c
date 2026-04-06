@@ -8,8 +8,7 @@
 #include <format.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "derivation_path.h"
 #include "display.h"
 #include "numberHelpers.h"
@@ -50,7 +49,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->idCredPub[48 * 2] = '\0';
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 48);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 48);
         cdata += 48;
         remainingDataLength -= 48;
 
@@ -62,7 +61,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->credId[48 * 2] = '\0';
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 48);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 48);
         cdata += 48;
         remainingDataLength -= 48;
 
@@ -71,7 +70,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->publicKeysLength = cdata[0];
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
 
         ctx->showIntro = true;
         ctx->state = TX_PUBLIC_INFO_FOR_IP_VERIFICATION_KEY;
@@ -89,7 +88,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
         }
         ctx->keyType[2] = '\0';
         // Hash key type
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
         cdata += 1;
         remainingDataLength -= 1;
         // Hash key index
@@ -97,7 +96,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
 
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
         cdata += 1;
         remainingDataLength -= 1;
         uint8_t publicKey[32];
@@ -105,7 +104,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         memmove(publicKey, cdata, 32);
-        updateHash((cx_hash_t *) &tx_state->hash, publicKey, 32);
+        update_hash((cx_hash_t *) &tx_state->hash, publicKey, 32);
         to_paginated_hex(publicKey, 32, ctx->publicKey, sizeof(ctx->publicKey));
 
         ctx->publicKeysLength -= 1;
@@ -128,7 +127,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
         if (remainingDataLength < 1) {
             THROW(SWO_INCORRECT_DATA);
         }
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 1);
         bin_to_dec(ctx->threshold, sizeof(ctx->threshold), cdata[0]);
 
         if (ctx->showIntro) {

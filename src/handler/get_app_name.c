@@ -6,6 +6,16 @@
 #include <io.h>
 #include <status_words.h>
 
+/**
+ * Length of APPNAME variable in the Makefile.
+ */
+#define APPNAME_LEN (sizeof(APPNAME) - 1)
+
+/**
+ * Maximum length of application name.
+ */
+#define MAX_APPNAME_LEN 64
+
 int handle_get_app_name(void) {
     _Static_assert(APPNAME_LEN < MAX_APPNAME_LEN, "APPNAME must be at most 64 characters!");
 

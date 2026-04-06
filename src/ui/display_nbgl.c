@@ -8,8 +8,12 @@
 #include <nbgl_use_case.h>
 
 #include "apdu/apdu_response.h"
-#include "getPublicKey.h"
-#include "sign.h"
+#include "get_public_key.h"
+#include "cbor_data_blob.h"
+#include "sign_configure_baker.h"
+#include "sign_credential_deployment.h"
+#include "sign_transfer_schedule.h"
+#include "tx_hash.h"
 
 #include "menu_nbgl.h"
 

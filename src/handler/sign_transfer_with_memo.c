@@ -7,11 +7,10 @@
 #include <status_words.h>
 
 #include "apdu/apdu_response.h"
-#include "app_crypto.h"
-#include "app_encoding.h"
+#include "concordium_crypto.h"
 #include "display.h"
 #include "numberHelpers.h"
-#include "sign.h"
+#include "cbor_data_blob.h"
 #include "tx_hash.h"
 
 #include "sign_transfer_with_memo.h"
@@ -59,12 +58,12 @@ void handle_sign_transfer_with_memo(const command_t *cmd,
             THROW(ERROR_INVALID_PARAM);
         }
 
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 2);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 2);
 
         ctx->state = TX_TRANSFER_MEMO_INITIAL;
         send_success_no_idle();
     } else if (p1 == P1_MEMO && ctx->state == TX_TRANSFER_MEMO_INITIAL) {
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
         readCborInitial(cdata, dataLength);
         if (memo_ctx->cborLength == 0) {
@@ -74,7 +73,7 @@ void handle_sign_transfer_with_memo(const command_t *cmd,
             send_success_no_idle();
         }
     } else if (p1 == P1_MEMO && ctx->state == TX_TRANSFER_MEMO) {
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
         readCborContent(cdata, dataLength);
         if (memo_ctx->cborLength != 0) {
@@ -91,7 +90,7 @@ void handle_sign_transfer_with_memo(const command_t *cmd,
         }
         uint64_t amount = U8BE(cdata, 0);
         amount_to_gtu_display(ctx->displayAmount, sizeof(ctx->displayAmount), amount);
-        updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
+        update_hash((cx_hash_t *) &tx_state->hash, cdata, 8);
 
         startTransferDisplay(true, flags);
 

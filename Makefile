@@ -135,6 +135,10 @@ endif
 ifeq ($(ENABLE_TRUSTED_NAME_TEST_KEY),1)
 DEFINES += TRUSTED_NAME_TEST_KEY
 endif
+
+# HKDF API is implemented in the SDK but declared only under lib_cxng/src (not in the public cx.h umbrella).
+INCLUDES_PATH += $(BOLOS_SDK)/lib_cxng/src
+
 include $(BOLOS_SDK)/Makefile.standard_app
 
 # Berkeley `size` (text / data / bss / dec / hex), not `size -A`.

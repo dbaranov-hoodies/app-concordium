@@ -23,8 +23,6 @@ void readCborInitial(uint8_t *cdata, uint8_t dataLength);
  */
 void readCborContent(uint8_t *cdata, uint8_t dataLength);
 
-void buildAndSignTransactionHash(void);
-
 /** CBOR memo / register-data payload bounds (see readCborInitial, transfer handlers). */
 #define CBOR_2BYTE_HEADER    2
 #define MAX_MEMO_STRING_SIZE 255
