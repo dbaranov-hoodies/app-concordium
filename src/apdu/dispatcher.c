@@ -33,20 +33,47 @@
 
 /**
  * Central APDU dispatcher for the Concordium app (CLA is checked in app_main).
- * Validates cdata presence (and P1/P2 for some instructions), then dispatches on `cmd->ins`
- * to the instruction handler. Multi-step signing flows use `isInitialCall` on the first chunk.
+ *
+ * This function is the single entry point for all supported APDU instructions. It:
+ *   - Inspects `cmd->ins` and routes the request to the corresponding handler.
+ *   - Performs basic validation that command data (`cmd->data`) is present whenever the
+ *     instruction expects a non-empty cdata buffer.
+ *   - Returns an appropriate status word via `io_send_sw(...)` in case of validation or
+ *     consistency failures, before any handler is invoked.
+ *   - Delegates any further argument parsing, semantic validation and user interaction to
+ *     the instruction-specific handler functions included above.
+ *
+ * Multi-step signing flows (for example, large transactions that need to be streamed in
+ * several APDU chunks) use the `isInitialCall` flag to distinguish the first chunk from
+ * subsequent ones. Handlers that support such flows are responsible for maintaining any
+ * required state across calls and for updating `flags` to request asynchronous UI steps.
+ *
+ * The dispatcher itself does not modify global state or `flags` directly; it only forwards
+ * the pointer so that handlers can set UI / I/O flags as necessary for the BOLOS runtime.
+ * If an unsupported or unknown instruction code is received, the relevant default branch
+ * (not shown in this excerpt) is expected to signal `SWO_INVALID_INS`.
  *
  * @param cmd            Parsed APDU (`command_t`: ins, p1, p2, lc, data).
  * @param flags          BOLOS/UI flags for asynchronous signing and navigation.
  * @param isInitialCall  True on the first invocation of this instruction for the current
- * transaction.
+ *                       transaction (false for continuation chunks in a multi-step flow).
  *
- * @return 0 after a handler runs to completion; validation failures return the value from
- *         `io_send_sw(...)`. Unknown `INS` throws `SWO_INVALID_INS`.
+ * @return 0 after a handler runs to completion and any response has been queued for
+ *         transmission; validation failures return the value from `io_send_sw(...)`.
  */
 int apdu_dispatcher(const command_t *cmd, volatile unsigned int *flags, bool isInitialCall) {
+    /* Dispatch on the instruction byte. Each case performs minimal precondition checks
+     * (in particular, that `cmd->data` is non-NULL when required) before delegating to
+     * the specialized handler. Handlers are responsible for detailed parsing and for
+     * populating the response buffer / status words.
+     */
     switch (cmd->ins) {
+        /* Key and address-related queries: return public information, do not modify state. */
         case INS_GET_PUBLIC_KEY:
+            /* All instructions that consume APDU cdata must verify that `cmd->data` is set.
+             * The length (`cmd->lc`) and content of the buffer is validated within the
+             * called handler.
+             */
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
             }
@@ -58,12 +85,19 @@ int apdu_dispatcher(const command_t *cmd, volatile unsigned int *flags, bool isI
             }
             handle_verify_address(cmd, flags);
             break;
+
+        /* Simple, single-step transfer signing. */
         case INS_SIGN_TRANSFER:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
             }
             handle_sign_transfer(cmd, flags);
             break;
+
+        /* Transfer signing variants that may span multiple APDU chunks.
+         * For these, `isInitialCall` is true for the first APDU of the flow and false for
+         * subsequent APDUs, allowing the handler to reset or resume internal parsing state.
+         */
         case INS_SIGN_TRANSFER_WITH_MEMO:
             if (!cmd->data) {
                 return io_send_sw(SWO_WRONG_DATA_LENGTH);
