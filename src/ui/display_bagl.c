@@ -21,7 +21,7 @@ UX_STEP_NOCB(ux_display_memo_step_nocb,
 
 UX_STEP_CB(ux_display_memo_step,
            bnnn_paging,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {"Memo", (char *) global.withDataBlob.cborContext.display});
 
 UX_FLOW(ux_display_memo, &ux_display_memo_step);
@@ -51,7 +51,7 @@ void uiComparePubkey(void) {
     ux_flow_init(0, ux_sign_compare_public_key, NULL);
 }
 
-UX_STEP_VALID(ux_decline_step, pb, sendUserRejection(), {&C_icon_crossmark, "Decline"});
+UX_STEP_VALID(ux_decline_step, pb, send_user_rejection(), {&C_icon_crossmark, "Decline"});
 
 // UI definitions for the approval of the generation of a public-key. This prompts the user to
 // accept that a public-key will be generated and returned to the computer.
@@ -77,8 +77,8 @@ UX_STEP_NOCB(ux_verify_address_0_step,
 UX_STEP_NOCB(ux_verify_address_1_step,
              bnnn_paging,
              {.title = "Address", .text = (char *) global.verifyAddressContext.address});
-UX_STEP_CB(ux_verify_address_approve_step, pb, sendSuccess(0), {&C_icon_validate_14, "Approve"});
-UX_STEP_CB(ux_verify_address_reject_step, pb, sendUserRejection(), {&C_icon_crossmark, "Reject"});
+UX_STEP_CB(ux_verify_address_approve_step, pb, send_success(0), {&C_icon_validate_14, "Approve"});
+UX_STEP_CB(ux_verify_address_reject_step, pb, send_user_rejection(), {&C_icon_crossmark, "Reject"});
 UX_FLOW(ux_verify_address,
         &ux_verify_address_0_step,
         &ux_verify_address_1_step,
@@ -102,7 +102,7 @@ UX_STEP_CB(ux_sign_flow_shared_sign,
            {&C_icon_validate_14, "Sign", "transaction"});
 UX_STEP_CB(ux_sign_flow_shared_decline,
            pnn,
-           sendUserRejection(),
+           send_user_rejection(),
            {&C_icon_crossmark, "Reject", "transaction"});
 UX_FLOW(ux_sign_flow_shared, &ux_sign_flow_shared_sign, &ux_sign_flow_shared_decline);
 
@@ -123,7 +123,7 @@ UX_STEP_CB(ux_export_private_key_accept_step,
            {&C_icon_validate_14, (char *) global.exportPrivateKeyContext.display_sign});
 UX_STEP_CB(ux_export_private_key_decline_step,
            pb,
-           sendUserRejection(),
+           send_user_rejection(),
            {&C_icon_crossmark, "Reject operation"});
 UX_FLOW(ux_export_private_key,
         &ux_export_private_key_purpose_step,
@@ -158,7 +158,7 @@ UX_STEP_CB(ux_export_private_key_new_path_approve_step,
            });
 UX_STEP_CB(ux_export_private_key_new_path_reject_step,
            pb,
-           sendUserRejection(),
+           send_user_rejection(),
            {
                &C_icon_crossmark,
                "Reject operation",
@@ -203,7 +203,7 @@ UX_STEP_NOCB(ux_sign_configure_baker_keys_step, nn, {"Update baker", "keys"});
 
 UX_STEP_CB(ux_sign_configure_baker_url_cb_step,
            bnnn_paging,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {.title = "URL", .text = (char *) global.signConfigureBaker.url.urlDisplay});
 
 UX_STEP_NOCB(ux_sign_configure_baker_url_step,
@@ -212,7 +212,7 @@ UX_STEP_NOCB(ux_sign_configure_baker_url_step,
 
 UX_STEP_CB(ux_sign_configure_baker_continue,
            nn,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {"Continue", "with transaction"});
 
 UX_STEP_NOCB(ux_sign_configure_baker_empty_url_step, bn, {"Empty URL", ""});
@@ -464,11 +464,11 @@ void startConfigureDelegationDisplay(void) {
 
 // Credential deployment
 
-UX_STEP_CB(ux_credential_deployment_review_details, nn, sendSuccessNoIdle(), {"Review", "details"});
+UX_STEP_CB(ux_credential_deployment_review_details, nn, send_success_no_idle(), {"Review", "details"});
 
 UX_STEP_CB(ux_update_credentials_initial_flow_1_step,
            nn,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {"Continue", "with transaction"});
 
 UX_FLOW(ux_update_credentials_initial_flow,
@@ -500,7 +500,7 @@ UX_STEP_NOCB(ux_credential_deployment_threshold_flow_0_step,
               (char *) global.signCredentialDeploymentContext.signatureThreshold});
 UX_STEP_CB(ux_credential_deployment_threshold_flow_1_step,
            bn,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {"AR threshold",
             (char *) global.signCredentialDeploymentContext.anonymityRevocationThreshold});
 
@@ -535,7 +535,7 @@ UX_STEP_CB(ux_sign_credential_deployment_approve_step,
            {&C_icon_validate_14, "Sign", "details"});
 UX_STEP_CB(ux_sign_credential_deployment_reject_step,
            pnn,
-           sendUserRejection(),
+           send_user_rejection(),
            {&C_icon_crossmark, "Decline to", "sign details"});
 
 UX_FLOW(ux_sign_credential_deployment_existing_with_intro,
@@ -588,7 +588,7 @@ UX_FLOW(ux_sign_credential_deployment_new,
 
 UX_STEP_CB(ux_sign_credential_update_id_0_step,
            bnnn_paging,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {.title = "Rem. credential",
             .text = (char *) global.signCredentialDeploymentContext.credentialId});
 UX_FLOW(ux_sign_credential_update_id, &ux_sign_credential_update_id_0_step);
@@ -603,7 +603,7 @@ UX_STEP_CB(ux_sign_credential_update_threshold_1_step,
            {&C_icon_validate_14, "Sign", "transaction"});
 UX_STEP_CB(ux_sign_credential_update_threshold_2_step,
            pnn,
-           sendUserRejection(),
+           send_user_rejection(),
            {&C_icon_crossmark, "Decline to", "sign transaction"});
 UX_FLOW(ux_sign_credential_update_threshold,
         &ux_sign_credential_update_threshold_0_step,
@@ -672,12 +672,12 @@ UX_STEP_NOCB(ux_sign_public_info_for_ip_display_cred_id,
 
 UX_STEP_CB(ux_sign_public_info_for_ip_continue,
            nn,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {"Continue", "reviewing info"});
 
 UX_STEP_CB(ux_sign_public_info_review,
            nn,
-           sendSuccessNoIdle(),
+           send_success_no_idle(),
            {"Review identity", "provider info"});
 
 UX_STEP_CB(ux_sign_public_info_for_ip_sign,
@@ -687,7 +687,7 @@ UX_STEP_CB(ux_sign_public_info_for_ip_sign,
 
 UX_STEP_CB(ux_sign_public_info_for_ip_decline,
            pnn,
-           sendUserRejection(),
+           send_user_rejection(),
            {&C_icon_crossmark, "Decline to", "sign info"});
 
 UX_STEP_NOCB(ux_sign_public_info_for_ip_display_threshold,
@@ -747,7 +747,7 @@ void uiSignPublicInformationForIpFinalDisplay(void) {
 static void register_data_on_data_confirm(void) {
     signRegisterData_t *ctx = &global.withDataBlob.signRegisterData;
     if (ctx->dataLength > 0) {
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else {
         uiSignFlowSharedDisplay();
     }
@@ -755,7 +755,7 @@ static void register_data_on_data_confirm(void) {
 
 UX_STEP_VALID(ux_register_data_initial_flow_step,
               nn,
-              sendSuccessNoIdle(),
+              send_success_no_idle(),
               {"Continue", "with transaction"});
 UX_STEP_VALID(ux_register_data_display_data_step,
               bnnn_paging,
@@ -848,7 +848,7 @@ UX_STEP_NOCB(ux_scheduled_transfer_initial_flow_1_step,
               .text = (char *) global.withDataBlob.signTransferWithScheduleContext.displayStr});
 UX_STEP_VALID(ux_scheduled_transfer_initial_flow_2_step,
               nn,
-              sendSuccessNoIdle(),
+              send_success_no_idle(),
               {"Continue", "with transaction"});
 
 // UI definitions for displaying a timestamp and an amount of a scheduled transfer.

@@ -48,13 +48,13 @@ void sendPublicKey(bool compare) {
     // Send back success response including the public-key (and signature, if wanted).
     if (compare) {
         // Show the public-key so that the user can verify the public-key.
-        sendSuccessResultNoIdle(tx);
+        send_success_result_no_idle(tx);
         toPaginatedHex(publicKey, sizeof(publicKey), ctx->publicKey, sizeof(ctx->publicKey));
         // Allow for receiving a new instruction even while comparing public keys.
         tx_state->currentInstruction = INSTRUCTION_NONE;
         uiComparePubkey();
 
     } else {
-        sendSuccess(tx);
+        send_success(tx);
     }
 }

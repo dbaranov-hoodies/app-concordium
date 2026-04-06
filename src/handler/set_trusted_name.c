@@ -350,5 +350,5 @@ void handle_set_trusted_name(const command_t *cmd) {
 
     explicit_bzero(&global.trustedNamePki, sizeof(global.trustedNamePki));
 
-    sendSuccess(0);
+    send_success(0);
 }

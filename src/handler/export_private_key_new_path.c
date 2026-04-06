@@ -277,7 +277,7 @@ void handle_export_private_key_new_path(const command_t *cmd, volatile unsigned 
 
 void sendPrivateKeysNewPath(void) {
     memmove(G_io_apdu_buffer, ctx->outputPrivateKeys, ctx->privateKeysLength);
-    sendSuccess(ctx->privateKeysLength);
+    send_success(ctx->privateKeysLength);
     explicit_bzero(ctx->outputPrivateKeys, sizeof(ctx->outputPrivateKeys));
     ctx->privateKeysLength = 0;
 }

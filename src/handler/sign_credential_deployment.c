@@ -26,9 +26,9 @@ static tx_state_t *tx_state = &global_tx_state;
 void processNextVerificationKey(void) {
     if (ctx->numberOfVerificationKeys == 0) {
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_SIGNATURE_THRESHOLD;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else {
-        sendSuccessNoIdle();  // Request more data from the computer.
+        send_success_no_idle();  // Request more data from the computer.
     }
 }
 
@@ -92,8 +92,8 @@ static void parseVerificationKey(uint8_t *buffer, uint8_t dataLength) {
 #define P2_THRESHOLD                   0x05
 
 void handle_sign_credential_deployment(const command_t *cmd,
-                                    volatile unsigned int *flags,
-                                    bool isInitialCall) {
+                                       volatile unsigned int *flags,
+                                       bool isInitialCall) {
     uint8_t *dataBuffer = cmd->data;
     uint8_t p1 = cmd->p1;
     uint8_t p2 = cmd->p2;
@@ -114,7 +114,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_VERIFICATION_KEYS_LENGTH;
         ctx->showIntro = true;
 
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_VERIFICATION_KEY_LENGTH &&
                ctx->state == TX_CREDENTIAL_DEPLOYMENT_VERIFICATION_KEYS_LENGTH) {
         if (lc < 1) {
@@ -123,7 +123,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
         ctx->numberOfVerificationKeys = dataBuffer[0];
         updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_VERIFICATION_KEY;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_VERIFICATION_KEY) {
         if (ctx->numberOfVerificationKeys > 0 &&
             ctx->state == TX_CREDENTIAL_DEPLOYMENT_VERIFICATION_KEY) {
@@ -145,7 +145,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
         } else {
             // Do not display the last verification key here. This is deferred to the final UI flow.
             ctx->state = TX_CREDENTIAL_DEPLOYMENT_SIGNATURE_THRESHOLD;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
 
     } else if (p1 == P1_SIGNATURE_THRESHOLD &&
@@ -215,7 +215,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
 
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_AR_IDENTITY;
 
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_AR_IDENTITY && ctx->state == TX_CREDENTIAL_DEPLOYMENT_AR_IDENTITY) {
         if (ctx->anonymityRevocationListLength == 0) {
             // Invalid state, sender says ar identity pair is incoming, but we already received all.
@@ -253,7 +253,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
             ctx->state = TX_CREDENTIAL_DEPLOYMENT_CREDENTIAL_DATES;
         }
         ctx->anonymityRevocationListLength -= 1;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_CREDENTIAL_DATES &&
                ctx->state == TX_CREDENTIAL_DEPLOYMENT_CREDENTIAL_DATES) {
         // hash valid to and created at
@@ -279,7 +279,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
             ctx->state = TX_CREDENTIAL_DEPLOYMENT_ATTRIBUTE_TAG;
         }
 
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_ATTRIBUTE_TAG && ctx->state == TX_CREDENTIAL_DEPLOYMENT_ATTRIBUTE_TAG) {
         if (ctx->attributeListLength <= 0) {
             THROW(ERROR_INVALID_STATE);
@@ -306,7 +306,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
 
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_ATTRIBUTE_VALUE;
         // Ask computer for the attribute value.
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_ATTRIBUTE_VALUE && ctx->state == TX_CREDENTIAL_DEPLOYMENT_ATTRIBUTE_VALUE) {
         // Add attribute value to the hash.
         if (remainingDataLength < ctx->attributeValueLength) {
@@ -318,11 +318,11 @@ void handle_sign_credential_deployment(const command_t *cmd,
         // We have processed all attributes
         if (ctx->attributeListLength == 0) {
             ctx->state = TX_CREDENTIAL_DEPLOYMENT_LENGTH_OF_PROOFS;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         } else {
             // There are additional attributes to be read, so ask for more.
             ctx->state = TX_CREDENTIAL_DEPLOYMENT_ATTRIBUTE_TAG;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else if (p1 == P1_LENGTH_OF_PROOFS &&
                ctx->state == TX_CREDENTIAL_DEPLOYMENT_LENGTH_OF_PROOFS) {
@@ -334,7 +334,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
             updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 4);
         }
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_PROOFS;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_PROOFS && ctx->state == TX_CREDENTIAL_DEPLOYMENT_PROOFS) {
         if (ctx->proofLength > MAX_CDATA_LENGTH) {
             if (remainingDataLength < MAX_CDATA_LENGTH) {
@@ -342,7 +342,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
             }
             updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, MAX_CDATA_LENGTH);
             ctx->proofLength -= MAX_CDATA_LENGTH;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         } else {
             if (remainingDataLength < ctx->proofLength) {
                 THROW(SWO_INCORRECT_DATA);
@@ -364,7 +364,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
             } else {
                 ctx->state = TX_CREDENTIAL_DEPLOYMENT_NEW_OR_EXISTING;
             }
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else if (p1 == P1_NEW_OR_EXISTING && ctx->state == TX_CREDENTIAL_DEPLOYMENT_NEW_OR_EXISTING) {
         // 0 indicates new, 1 indicates existing

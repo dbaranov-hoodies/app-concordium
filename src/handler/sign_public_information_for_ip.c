@@ -24,8 +24,8 @@ static tx_state_t *tx_state = &global_tx_state;
 #define P1_THRESHOLD        0x02
 
 void handle_sign_public_information_for_ip(const command_t *cmd,
-                                      volatile unsigned int *flags,
-                                      bool isInitialCall) {
+                                           volatile unsigned int *flags,
+                                           bool isInitialCall) {
     uint8_t *cdata = cmd->data;
     uint8_t p1 = cmd->p1;
     uint8_t lc = cmd->lc;
@@ -75,7 +75,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
 
         ctx->showIntro = true;
         ctx->state = TX_PUBLIC_INFO_FOR_IP_VERIFICATION_KEY;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_VERIFICATION_KEY && ctx->state == TX_PUBLIC_INFO_FOR_IP_VERIFICATION_KEY) {
         if (ctx->publicKeysLength <= 0) {
             THROW(ERROR_INVALID_STATE);
@@ -121,7 +121,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
         } else {
             ctx->state = TX_PUBLIC_INFO_FOR_IP_THRESHOLD;
             // We don't display the last public key here. It is displayed in the final flow.
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else if (p1 == P1_THRESHOLD && ctx->state == TX_PUBLIC_INFO_FOR_IP_THRESHOLD) {
         // Read the threshold byte and parse it to display it.

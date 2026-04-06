@@ -73,7 +73,7 @@ void handle_sign_update_credential(const command_t *cmd,
         }
         updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
         ctx->updateCredentialState = TX_UPDATE_CREDENTIAL_CREDENTIAL;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p2 == P2_CREDENTIAL_CREDENTIAL &&
                ctx->updateCredentialState == TX_UPDATE_CREDENTIAL_CREDENTIAL &&
                ctx->credentialDeploymentCount > 0) {
@@ -93,7 +93,7 @@ void handle_sign_update_credential(const command_t *cmd,
         } else {
             ctx->updateCredentialState = TX_UPDATE_CREDENTIAL_ID;
         }
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p2 == P2_CREDENTIAL_ID && ctx->updateCredentialState == TX_UPDATE_CREDENTIAL_ID) {
         if (remainingDataLength < 48) {
             THROW(SWO_INCORRECT_DATA);

@@ -25,8 +25,8 @@ static tx_state_t *tx_state = &global_tx_state;
 #define P1_PROOF            0x02
 
 void handle_sign_transfer_to_public(const command_t *cmd,
-                                volatile unsigned int *flags,
-                                bool isInitialCall) {
+                                    volatile unsigned int *flags,
+                                    bool isInitialCall) {
     uint8_t *cdata = cmd->data;
     uint8_t p1 = cmd->p1;
     uint8_t dataLength = cmd->lc;
@@ -52,7 +52,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
         }
         ctx->state = TX_TRANSFER_TO_PUBLIC_REMAINING_AMOUNT;
         // Ask the caller for the next command.
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_REMAINING_AMOUNT && ctx->state == TX_TRANSFER_TO_PUBLIC_REMAINING_AMOUNT) {
         // Hash remaining amount. Remaining amount is encrypted, and so we cannot display it.
         if (remainingDataLength < 192) {
@@ -100,7 +100,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
         ctx->proofSize = U2BE(cdata, 0);
 
         ctx->state = TX_TRANSFER_TO_PUBLIC_PROOF;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_PROOF && ctx->state == TX_TRANSFER_TO_PUBLIC_PROOF) {
         updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
@@ -115,7 +115,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
             // There are additional bytes to be received, so ask the caller
             // for more data.
             ctx->proofSize -= dataLength;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else {
         THROW(ERROR_INVALID_STATE);

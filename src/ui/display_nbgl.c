@@ -34,16 +34,16 @@ static void review_public_key_choice(bool confirm) {
     if (confirm) {
         sendPublicKey(true);
     } else {
-        sendUserRejection();
+        send_user_rejection();
     }
 }
 
 static void review_verify_address(bool confirm) {
     if (confirm) {
-        sendSuccessResultNoIdle(0);
+        send_success_result_no_idle(0);
         nbgl_useCaseReviewStatus(STATUS_TYPE_ADDRESS_VERIFIED, ui_menu_main);
     } else {
-        sendUserRejectionNoIdle();
+        send_user_rejection_no_idle();
         nbgl_useCaseReviewStatus(STATUS_TYPE_ADDRESS_REJECTED, ui_menu_main);
     }
 }
@@ -53,7 +53,7 @@ static void review_export_private_key(bool confirm) {
     if (confirm) {
         exportPrivateKey();
     } else {
-        sendUserRejection();
+        send_user_rejection();
     }
 }
 
@@ -62,7 +62,7 @@ static void review_export_private_key_new_path(bool confirm) {
     if (confirm) {
         sendPrivateKeysNewPath();
     } else {
-        sendUserRejection();
+        send_user_rejection();
     }
 }
 
@@ -71,20 +71,20 @@ static void review_choice_sign(bool confirm) {
     if (confirm) {
         buildAndSignTransactionHash();
     } else {
-        sendUserRejection();
+        send_user_rejection();
     }
 }
 
 static void keep_going_with_transaction(bool confirm) {
     if (confirm) {
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else {
-        sendUserRejection();
+        send_user_rejection();
     }
 }
 static void sendSuccessNoIdleCallback(bool confirm) {
     (void) confirm;  // Suppress unused parameter warning
-    sendSuccessNoIdle();
+    send_success_no_idle();
 }
 
 static void processNextVerificationKeyNoIdleCallback(bool confirm) {
@@ -1082,7 +1082,7 @@ static void processNextScheduledAmountWrapper(bool choice) {
     if (choice) {
         processNextScheduledAmount(ctx_sign_transfer_with_schedule->buffer);
     } else {
-        sendUserRejection();
+        send_user_rejection();
     }
 }
 

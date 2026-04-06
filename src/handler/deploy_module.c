@@ -56,7 +56,7 @@ void handle_deploy_module(const command_t *cmd) {
         numberToText((uint8_t *) ctx_deploy_module->versionDisplay,
                      sizeof(ctx_deploy_module->versionDisplay),
                      ctx_deploy_module->version);
-        sendSuccessNoIdle();
+        send_success_no_idle();
     }
 
     else if (p1 == P1_SOURCE && ctx_deploy_module->remainingSourceLength > 0) {
@@ -66,7 +66,7 @@ void handle_deploy_module(const command_t *cmd) {
         updateHash((cx_hash_t *) &tx_state->hash, cdata, lc);
         ctx_deploy_module->remainingSourceLength -= lc;
         if (ctx_deploy_module->remainingSourceLength > 0) {
-            sendSuccessNoIdle();
+            send_success_no_idle();
         } else if (ctx_deploy_module->remainingSourceLength == 0) {
             uiDeployModuleDisplay();
         }

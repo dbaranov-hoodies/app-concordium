@@ -85,7 +85,7 @@ void handle_update_contract(const command_t *cmd) {
                      subIndex);
 
         ctx_update_contract->state = UPDATE_CONTRACT_NAME_FIRST;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     }
 
     else if (p1 == P1_NAME) {
@@ -108,10 +108,10 @@ void handle_update_contract(const command_t *cmd) {
         // subtract the length of the chunk from the remaining name length
         ctx_update_contract->remainingNameLength -= lc;
         if (ctx_update_contract->remainingNameLength > 0) {
-            sendSuccessNoIdle();
+            send_success_no_idle();
         } else if (ctx_update_contract->remainingNameLength == 0) {
             ctx_update_contract->state = UPDATE_CONTRACT_PARAMS_FIRST;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
 
     } else if (p1 == P1_PARAMS) {
@@ -135,7 +135,7 @@ void handle_update_contract(const command_t *cmd) {
         // subtract the length of the chunk from the remaining params length
         ctx_update_contract->remainingParamsLength -= lc;
         if (ctx_update_contract->remainingParamsLength > 0) {
-            sendSuccessNoIdle();
+            send_success_no_idle();
         } else if (ctx_update_contract->remainingParamsLength == 0) {
             uiUpdateContractDisplay();
         }

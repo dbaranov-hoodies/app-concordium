@@ -90,7 +90,7 @@ void handle_sign_register_data(const command_t *cmd,
         if (ctx->dataLength == 0) {
             uiRegisterDataPayloadDisplay(flags);
         } else {
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else {
         THROW(ERROR_INVALID_STATE);

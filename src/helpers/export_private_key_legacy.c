@@ -41,7 +41,7 @@ void exportPrivateKeySeed(void) {
                 }
             }
 
-            sendSuccess(tx);
+            send_success(tx);
         }
         FINALLY {
             explicit_bzero(&privateKey, sizeof(privateKey));
@@ -72,7 +72,7 @@ void exportPrivateKeyBls(void) {
                 tx += sizeof(privateKey);
             }
 
-            sendSuccess(tx);
+            send_success(tx);
         }
         FINALLY {
             explicit_bzero(&privateKey, sizeof(privateKey));

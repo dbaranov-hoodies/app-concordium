@@ -90,8 +90,8 @@ static void handleCommissionRates(uint8_t *cdata, uint8_t dataLength) {
 }
 
 void handle_sign_configure_baker(const command_t *cmd,
-                              volatile unsigned int *flags,
-                              bool isInitialCall) {
+                                 volatile unsigned int *flags,
+                                 bool isInitialCall) {
     uint8_t *cdata = cmd->data;
     uint8_t p1 = cmd->p1;
     uint8_t dataLength = cmd->lc;
@@ -148,7 +148,7 @@ void handle_sign_configure_baker(const command_t *cmd,
             ctx_conf_baker->state = CONFIGURE_BAKER_SUSPENDED;
         }
 
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (P1_FIRST_BATCH == p1 && ctx_conf_baker->state == CONFIGURE_BAKER_FIRST) {
         int lengthCheck = dataLength;
 
@@ -240,7 +240,7 @@ void handle_sign_configure_baker(const command_t *cmd,
 
             // We delay the display until we get the aggregation key.
             ctx_conf_baker->state = CONFIGURE_BAKER_AGGREGATION_KEY;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         } else {
             if (lengthCheck != 0) {
                 THROW(SWO_INCORRECT_DATA);
@@ -312,7 +312,7 @@ void handle_sign_configure_baker(const command_t *cmd,
             *flags |= IO_ASYNCH_REPLY;
         } else {
             ctx_conf_baker->state = CONFIGURE_BAKER_URL;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else if (P1_URL == p1 && ctx_conf_baker->state == CONFIGURE_BAKER_URL) {
         if (ctx_conf_baker->url.urlLength > dataLength) {

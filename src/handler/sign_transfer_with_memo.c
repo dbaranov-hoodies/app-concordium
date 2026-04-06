@@ -26,7 +26,7 @@ static tx_state_t *tx_state = &global_tx_state;
 
 static void finish_transfer_memo(void) {
     ctx->state = TX_TRANSFER_AMOUNT;
-    sendSuccessNoIdle();
+    send_success_no_idle();
 }
 
 void handle_sign_transfer_with_memo(const command_t *cmd,
@@ -62,7 +62,7 @@ void handle_sign_transfer_with_memo(const command_t *cmd,
         updateHash((cx_hash_t *) &tx_state->hash, cdata, 2);
 
         ctx->state = TX_TRANSFER_MEMO_INITIAL;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_MEMO && ctx->state == TX_TRANSFER_MEMO_INITIAL) {
         updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
@@ -71,7 +71,7 @@ void handle_sign_transfer_with_memo(const command_t *cmd,
             finish_transfer_memo();
         } else {
             ctx->state = TX_TRANSFER_MEMO;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else if (p1 == P1_MEMO && ctx->state == TX_TRANSFER_MEMO) {
         updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);

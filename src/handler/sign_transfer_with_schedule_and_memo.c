@@ -63,7 +63,7 @@ void handle_sign_transfer_with_schedule_and_memo(const command_t *cmd,
         updateHash((cx_hash_t *) &tx_state->hash, cdata, 2);
 
         ctx->state = TX_TRANSFER_WITH_SCHEDULE_MEMO_START;
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else if (p1 == P1_MEMO && ctx->state == TX_TRANSFER_WITH_SCHEDULE_MEMO_START) {
         updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);
 
@@ -73,7 +73,7 @@ void handle_sign_transfer_with_schedule_and_memo(const command_t *cmd,
             finish_memo_scheduled(flags);
         } else {
             ctx->state = TX_TRANSFER_WITH_SCHEDULE_MEMO;
-            sendSuccessNoIdle();
+            send_success_no_idle();
         }
     } else if (p1 == P1_MEMO && ctx->state == TX_TRANSFER_WITH_SCHEDULE_MEMO) {
         updateHash((cx_hash_t *) &tx_state->hash, cdata, dataLength);

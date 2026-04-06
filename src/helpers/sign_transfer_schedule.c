@@ -25,7 +25,7 @@ void processNextScheduledAmount(uint8_t *buffer) {
     if (ctx->scheduledAmountsInCurrentPacket == 0) {
         // Current packet has been successfully read, but there are still more data to receive. Ask
         // the caller for more data.
-        sendSuccessNoIdle();
+        send_success_no_idle();
     } else {
         // The current packet still has additional timestamp/amount pairs to be added to the hash
         // and displayed for the user.

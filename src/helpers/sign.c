@@ -38,7 +38,7 @@ void buildAndSignTransactionHash(void) {
         THROW(ERROR_BUFFER_OVERFLOW);
     }
     memmove(G_io_apdu_buffer, signedHash, sizeof(signedHash));
-    sendSuccess(sizeof(signedHash));
+    send_success(sizeof(signedHash));
 }
 
 void readCborInitial(uint8_t *cdata, uint8_t dataLength) {
