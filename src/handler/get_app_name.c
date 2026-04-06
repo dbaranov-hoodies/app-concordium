@@ -3,6 +3,7 @@
 #include "get_app_name.h"
 #include "globals.h"
 
+#include <os.h>
 #include <io.h>
 #include <status_words.h>
 
