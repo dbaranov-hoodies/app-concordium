@@ -35,7 +35,7 @@ void handle_sign_register_data(const command_t *cmd,
     }
     uint8_t remainingDataLength = dataLength;
     if (p1 == P1_INITIAL && ctx->state == TX_REGISTER_DATA_INITIAL) {
-        size_t offset = parseKeyDerivationPath(cdata, remainingDataLength);
+        size_t offset = parse_derivation_path(cdata, remainingDataLength);
         if (offset > dataLength) {
             THROW(SWO_INCORRECT_DATA);
         }

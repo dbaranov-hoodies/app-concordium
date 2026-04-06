@@ -101,7 +101,7 @@ void detect_derivation_path_variant(derivation_path_t *derivation_path) {
     }
 }
 
-size_t parseKeyDerivationPath(uint8_t *cdata, uint8_t dataLength) {
+size_t parse_derivation_path(uint8_t *cdata, uint8_t dataLength) {
     derivation_path_t *dp = &global_derivation_path;
     init_derivation_path(dp);
     /* Path is a prefix; use parse_derivation_path_from_buffer (not parse_derivation_path_full,
@@ -118,10 +118,10 @@ void getIdentityAccountDisplayLegacyPath(uint8_t *dst,
                                          size_t dstLength,
                                          uint32_t identityIndex,
                                          uint32_t accountIndex) {
-    int offset = numberToText(dst, dstLength, identityIndex);
+    int offset = number_to_text(dst, dstLength, identityIndex);
     memmove(dst + offset, "/", 1);
     offset += 1;
-    bin2dec(dst + offset, dstLength - offset, accountIndex);
+    bin_to_dec(dst + offset, dstLength - offset, accountIndex);
 }
 
 void getIdentityAccountDisplayNewPath(uint8_t *dst,
@@ -129,13 +129,13 @@ void getIdentityAccountDisplayNewPath(uint8_t *dst,
                                       uint32_t identityProviderIndex,
                                       uint32_t identityIndex,
                                       uint32_t accountIndex) {
-    int offset = numberToText(dst, dstLength, identityProviderIndex);
+    int offset = number_to_text(dst, dstLength, identityProviderIndex);
     memmove(dst + offset, "/", 1);
     offset += 1;
 
-    offset += numberToText(dst + offset, dstLength - offset, identityIndex);
+    offset += number_to_text(dst + offset, dstLength - offset, identityIndex);
     memmove(dst + offset, "/", 1);
     offset += 1;
 
-    bin2dec(dst + offset, dstLength - offset, accountIndex);
+    bin_to_dec(dst + offset, dstLength - offset, accountIndex);
 }

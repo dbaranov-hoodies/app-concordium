@@ -57,10 +57,10 @@ static void parseVerificationKey(uint8_t *buffer, uint8_t dataLength) {
     updateHash((cx_hash_t *) &tx_state->hash, verificationKey, KEY_LENGTH);
 
     // Convert to a human-readable format.
-    toPaginatedHex(verificationKey,
-                   sizeof(verificationKey),
-                   ctx->accountVerificationKey,
-                   sizeof(ctx->accountVerificationKey));
+    to_paginated_hex(verificationKey,
+                     sizeof(verificationKey),
+                     ctx->accountVerificationKey,
+                     sizeof(ctx->accountVerificationKey));
     ctx->numberOfVerificationKeys -= 1;
 }
 
@@ -105,7 +105,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
     uint8_t remainingDataLength = lc;
 
     if (p1 == P1_INITIAL_PACKET && ctx->state == TX_CREDENTIAL_DEPLOYMENT_INITIAL) {
-        parseKeyDerivationPath(dataBuffer, lc);
+        parse_derivation_path(dataBuffer, lc);
 
         // Initialize values.
         if (cx_sha256_init(&tx_state->hash) != CX_SHA256) {
@@ -159,7 +159,7 @@ void handle_sign_credential_deployment(const command_t *cmd,
         if (lc < 1) {
             THROW(SWO_INCORRECT_DATA);
         }
-        bin2dec(ctx->signatureThreshold, sizeof(ctx->signatureThreshold), dataBuffer[0]);
+        bin_to_dec(ctx->signatureThreshold, sizeof(ctx->signatureThreshold), dataBuffer[0]);
         updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
         dataBuffer += 1;
         remainingDataLength -= 1;
@@ -180,9 +180,9 @@ void handle_sign_credential_deployment(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         uint64_t identityProviderIndex = U4BE(dataBuffer, 0);
-        numberToText((uint8_t *) ctx->identityProviderIndex,
-                     sizeof(ctx->identityProviderIndex),
-                     identityProviderIndex);
+        number_to_text((uint8_t *) ctx->identityProviderIndex,
+                       sizeof(ctx->identityProviderIndex),
+                       identityProviderIndex);
         updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 4);
         dataBuffer += 4;
         remainingDataLength -= 4;
@@ -191,9 +191,9 @@ void handle_sign_credential_deployment(const command_t *cmd,
         if (remainingDataLength < 1) {
             THROW(SWO_INCORRECT_DATA);
         }
-        int offset = numberToText(ctx->anonymityRevocationThreshold,
-                                  sizeof(ctx->anonymityRevocationThreshold),
-                                  dataBuffer[0]);
+        int offset = number_to_text(ctx->anonymityRevocationThreshold,
+                                    sizeof(ctx->anonymityRevocationThreshold),
+                                    dataBuffer[0]);
         if ((size_t) (offset + 8) > sizeof(ctx->anonymityRevocationThreshold)) {
             THROW(SWO_INCORRECT_DATA);
         }
@@ -209,9 +209,9 @@ void handle_sign_credential_deployment(const command_t *cmd,
         ctx->anonymityRevocationListLength = U2BE(dataBuffer, 0);
         updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 2);
         // Add the total amount of revokers to the display of threshold to get "x out of y"
-        bin2dec(ctx->anonymityRevocationThreshold + offset,
-                sizeof(ctx->anonymityRevocationThreshold) - offset,
-                ctx->anonymityRevocationListLength);
+        bin_to_dec(ctx->anonymityRevocationThreshold + offset,
+                   sizeof(ctx->anonymityRevocationThreshold) - offset,
+                   ctx->anonymityRevocationListLength);
 
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_AR_IDENTITY;
 

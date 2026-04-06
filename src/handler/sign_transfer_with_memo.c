@@ -90,7 +90,7 @@ void handle_sign_transfer_with_memo(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         uint64_t amount = U8BE(cdata, 0);
-        amountToGtuDisplay(ctx->displayAmount, sizeof(ctx->displayAmount), amount);
+        amount_to_gtu_display(ctx->displayAmount, sizeof(ctx->displayAmount), amount);
         updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
 
         startTransferDisplay(true, flags);

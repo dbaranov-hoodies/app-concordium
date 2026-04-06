@@ -82,18 +82,18 @@ void explicit_bzero(void *ptr, size_t size) {
     }
 }
 
-// Mock bin2dec - convert binary to decimal string
-size_t bin2dec(uint8_t *dst, size_t dst_size, uint32_t value) {
+// Mock bin_to_dec - convert binary to decimal string
+size_t bin_to_dec(uint8_t *dst, size_t dst_size, uint32_t value) {
     int ret = snprintf((char *) dst, dst_size, "%u", value);
     return (ret > 0 && ret < (int) dst_size) ? ret + 1 : 0;
 }
 
 // Mock number helpers - simplified versions
-void numberToText(uint8_t *dst, size_t dst_size, uint64_t number) {
+void number_to_text(uint8_t *dst, size_t dst_size, uint64_t number) {
     snprintf((char *) dst, dst_size, "%llu", number);
 }
 
-uint8_t lengthOfNumber(uint64_t number) {
+uint8_t length_of_number(uint64_t number) {
     if (number == 0) return 1;
     uint8_t length = 0;
     while (number > 0) {

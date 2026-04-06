@@ -41,7 +41,7 @@ static void handleCommissionRates(uint8_t *cdata, uint8_t dataLength) {
             THROW(SWO_INCORRECT_DATA);
         }
         uint32_t rate = U4BE(cdata, 0);
-        fractionToPercentageDisplay(
+        fraction_to_percentage_display(
             ctx_conf_baker->commissionRates.transactionFeeCommissionRate,
             sizeof(ctx_conf_baker->commissionRates.transactionFeeCommissionRate),
             rate);
@@ -55,7 +55,7 @@ static void handleCommissionRates(uint8_t *cdata, uint8_t dataLength) {
             THROW(SWO_INCORRECT_DATA);
         }
         uint32_t rate = U4BE(cdata, 0);
-        fractionToPercentageDisplay(
+        fraction_to_percentage_display(
             ctx_conf_baker->commissionRates.bakingRewardCommissionRate,
             sizeof(ctx_conf_baker->commissionRates.bakingRewardCommissionRate),
             rate);
@@ -69,7 +69,7 @@ static void handleCommissionRates(uint8_t *cdata, uint8_t dataLength) {
             THROW(SWO_INCORRECT_DATA);
         }
         uint32_t rate = U4BE(cdata, 0);
-        fractionToPercentageDisplay(
+        fraction_to_percentage_display(
             ctx_conf_baker->commissionRates.finalizationRewardCommissionRate,
             sizeof(ctx_conf_baker->commissionRates.finalizationRewardCommissionRate),
             rate);
@@ -100,7 +100,7 @@ void handle_sign_configure_baker(const command_t *cmd,
         if (cx_sha256_init(&tx_state->hash) != CX_SHA256) {
             THROW(ERROR_FAILED_CX_OPERATION);
         }
-        size_t offset = parseKeyDerivationPath(cdata, dataLength);
+        size_t offset = parse_derivation_path(cdata, dataLength);
         if (offset > dataLength) {
             THROW(SWO_INCORRECT_DATA);
         }
@@ -161,9 +161,10 @@ void handle_sign_configure_baker(const command_t *cmd,
                 ctx_conf_baker->capitalRestakeDelegation.stopBaking = true;
             } else {
                 ctx_conf_baker->capitalRestakeDelegation.stopBaking = false;
-                amountToGtuDisplay(ctx_conf_baker->capitalRestakeDelegation.displayCapital,
-                                   sizeof(ctx_conf_baker->capitalRestakeDelegation.displayCapital),
-                                   capitalAmount);
+                amount_to_gtu_display(
+                    ctx_conf_baker->capitalRestakeDelegation.displayCapital,
+                    sizeof(ctx_conf_baker->capitalRestakeDelegation.displayCapital),
+                    capitalAmount);
             }
             updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
             cdata += 8;

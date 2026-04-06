@@ -27,7 +27,7 @@ void getPrivateKey(const derivation_path_t *path, cx_ecfp_private_key_t *private
 /**
  * Public key for global_derivation_path (32 bytes, Concordium format).
  */
-void getPublicKey(uint8_t *publicKeyArray);
+void get_public_key(uint8_t *publicKeyArray);
 
 /** Ed25519 sign over KEY_LENGTH-byte message. Uses global_derivation_path. */
 void sign(uint8_t *input, uint8_t *signatureOnInput);

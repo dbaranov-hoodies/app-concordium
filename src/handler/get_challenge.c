@@ -8,6 +8,9 @@
 #include <status_words.h>
 #include <lcx_rng.h>
 
+/** Random challenge size in bytes (uint64_t) returned by GET_CHALLENGE. */
+#define CHALLENGE_SIZE 8
+
 void handle_get_challenge(void) {
     uint8_t buf[CHALLENGE_SIZE];
     cx_rng_no_throw(buf, sizeof(buf));

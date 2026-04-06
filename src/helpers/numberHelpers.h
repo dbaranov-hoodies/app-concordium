@@ -29,7 +29,7 @@
  * @param number the integer µGTU amount to convert to a GTU display version
  * @return number of bytes written to 'dst'
  */
-size_t amountToGtuDisplay(uint8_t *dst, size_t dstLength, uint64_t microGtuAmount);
+size_t amount_to_gtu_display(uint8_t *dst, size_t dstLength, uint64_t microGtuAmount);
 
 /**
  * Helper method that writes the input integer to a format that the device
@@ -39,7 +39,7 @@ size_t amountToGtuDisplay(uint8_t *dst, size_t dstLength, uint64_t microGtuAmoun
  * @param number the integer to convert to characters
  * @return number of bytes written to 'dst', i.e. the number of characters in the integer 'number'
  */
-size_t numberToText(uint8_t *dst, size_t dstLength, uint64_t number);
+size_t number_to_text(uint8_t *dst, size_t dstLength, uint64_t number);
 
 /**
  * Helper methods that writes the input integer to a format that the device
@@ -49,11 +49,11 @@ size_t numberToText(uint8_t *dst, size_t dstLength, uint64_t number);
  * @param number the integer to convert to characters
  * @return number of bytes written to 'dst'
  */
-size_t numberToTextWithUnit(uint8_t *dst,
-                            size_t dstLength,
-                            uint64_t number,
-                            uint8_t *unit,
-                            size_t unitLength);
+size_t number_to_text_with_unit(uint8_t *dst,
+                                size_t dstLength,
+                                uint64_t number,
+                                uint8_t *unit,
+                                size_t unitLength);
 
 /**
  * Helper method that writes the input integer to a format that the device can
@@ -64,7 +64,7 @@ size_t numberToTextWithUnit(uint8_t *dst,
  * @return number of bytes written to 'dst', i.e. the number of characters in the integer 'number' +
  * 1 for string termination
  */
-size_t bin2dec(uint8_t *dst, size_t dstLength, uint64_t number);
+size_t bin_to_dec(uint8_t *dst, size_t dstLength, uint64_t number);
 
 /**
  * Writes a fraction of the form "numerator/100000" to the destination formatted
@@ -74,7 +74,7 @@ size_t bin2dec(uint8_t *dst, size_t dstLength, uint64_t number);
  * @param number the numerator of the fraction
  * @return number of bytes written to 'dst'.
  */
-size_t fractionToPercentageDisplay(uint8_t *dst, size_t dstLength, uint32_t number);
+size_t fraction_to_percentage_display(uint8_t *dst, size_t dstLength, uint32_t number);
 
 /**
  * Helper method for converting a byte array into a character array, where the bytes
@@ -87,4 +87,4 @@ size_t fractionToPercentageDisplay(uint8_t *dst, size_t dstLength, uint32_t numb
  * @param asHex [out] where to write the output hexadecimal characters
  * @param asHexSize the number of characters that may be written to 'asHex'
  */
-void toPaginatedHex(uint8_t *byteArray, const uint64_t len, char *asHex, size_t asHexSize);
+void to_paginated_hex(uint8_t *byteArray, const uint64_t len, char *asHex, size_t asHexSize);

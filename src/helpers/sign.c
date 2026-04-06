@@ -100,7 +100,7 @@ void readCborInitial(uint8_t *cdata, uint8_t dataLength) {
     switch (ctx->majorType) {
         case 0:
             // non-negative integer
-            bin2dec(ctx->display, sizeof(ctx->display), length);
+            bin_to_dec(ctx->display, sizeof(ctx->display), length);
             if (ctx->cborLength != 0) {
                 THROW(ERROR_INVALID_STATE);
             }
@@ -109,10 +109,10 @@ void readCborInitial(uint8_t *cdata, uint8_t dataLength) {
             // negative integer
             memmove(ctx->display, "-", 1);
             if (length == UINT64_MAX) {
-                bin2dec(ctx->display + 1, sizeof(ctx->display) - 1, length);
+                bin_to_dec(ctx->display + 1, sizeof(ctx->display) - 1, length);
                 memmove(ctx->display + 1 + UINT64_MAX_DECIMAL_DIGITS, " - 1", 4);
             } else {
-                bin2dec(ctx->display + 1, sizeof(ctx->display) - 1, 1 + length);
+                bin_to_dec(ctx->display + 1, sizeof(ctx->display) - 1, 1 + length);
             }
             if (ctx->cborLength != 0) {
                 THROW(ERROR_INVALID_STATE);

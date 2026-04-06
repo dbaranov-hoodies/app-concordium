@@ -118,37 +118,37 @@ int timeToDisplayText(tm time, uint8_t *dst, size_t dstLength) {
         THROW(ERROR_BUFFER_OVERFLOW);
     }
 
-    offset += numberToText(dst, dstLength, time.tm_year + 1900);
+    offset += number_to_text(dst, dstLength, time.tm_year + 1900);
 
     memmove(dst + offset, "-", 1);
     offset += 1;
 
     offset += prefixWithZero(dst + offset, dstLength - offset, time.tm_mon + 1);
-    offset += numberToText(dst + offset, dstLength - offset, time.tm_mon + 1);
+    offset += number_to_text(dst + offset, dstLength - offset, time.tm_mon + 1);
 
     memmove(dst + offset, "-", 1);
     offset += 1;
 
     offset += prefixWithZero(dst + offset, dstLength - offset, time.tm_mday);
-    offset += numberToText(dst + offset, dstLength - offset, time.tm_mday);
+    offset += number_to_text(dst + offset, dstLength - offset, time.tm_mday);
 
     memmove(dst + offset, " ", 1);
     offset += 1;
 
     offset += prefixWithZero(dst + offset, dstLength - offset, time.tm_hour);
-    offset += numberToText(dst + offset, dstLength - offset, time.tm_hour);
+    offset += number_to_text(dst + offset, dstLength - offset, time.tm_hour);
 
     memmove(dst + offset, ":", 1);
     offset += 1;
 
     offset += prefixWithZero(dst + offset, dstLength - offset, time.tm_min);
-    offset += numberToText(dst + offset, dstLength - offset, time.tm_min);
+    offset += number_to_text(dst + offset, dstLength - offset, time.tm_min);
 
     memmove(dst + offset, ":", 1);
     offset += 1;
 
     offset += prefixWithZero(dst + offset, dstLength - offset, time.tm_sec);
-    offset += bin2dec(dst + offset, dstLength - offset, time.tm_sec);
+    offset += bin_to_dec(dst + offset, dstLength - offset, time.tm_sec);
 
     return offset;
 }

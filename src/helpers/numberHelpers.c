@@ -4,7 +4,7 @@
 
 #include <os.h>
 
-static size_t lengthOfNumber(uint64_t number) {
+static size_t length_of_number(uint64_t number) {
     if (number == 0) {
         return 1;
     }
@@ -15,8 +15,8 @@ static size_t lengthOfNumber(uint64_t number) {
     return len;
 }
 
-size_t numberToText(uint8_t *dst, size_t dstLength, uint64_t number) {
-    size_t len = lengthOfNumber(number);
+size_t number_to_text(uint8_t *dst, size_t dstLength, uint64_t number) {
+    size_t len = length_of_number(number);
 
     if (dstLength < len) {
         THROW(ERROR_BUFFER_OVERFLOW);
@@ -30,12 +30,12 @@ size_t numberToText(uint8_t *dst, size_t dstLength, uint64_t number) {
     return len;
 }
 
-size_t numberToTextWithUnit(uint8_t *dst,
-                            size_t dstLength,
-                            uint64_t number,
-                            uint8_t *unit,
-                            size_t unitLength) {
-    size_t len = numberToText(dst, dstLength, number);
+size_t number_to_text_with_unit(uint8_t *dst,
+                                size_t dstLength,
+                                uint64_t number,
+                                uint8_t *unit,
+                                size_t unitLength) {
+    size_t len = number_to_text(dst, dstLength, number);
 
     if (dstLength - len < unitLength + UNIT_SPACE_AND_NULL_LEN) {
         THROW(ERROR_BUFFER_OVERFLOW);
@@ -47,8 +47,8 @@ size_t numberToTextWithUnit(uint8_t *dst,
     return len + unitLength + UNIT_SPACE_AND_NULL_LEN;
 }
 
-size_t bin2dec(uint8_t *dst, size_t dstLength, uint64_t number) {
-    size_t characterLength = numberToText(dst, dstLength, number);
+size_t bin_to_dec(uint8_t *dst, size_t dstLength, uint64_t number) {
+    size_t characterLength = number_to_text(dst, dstLength, number);
     if (dstLength < characterLength + 1) {
         THROW(ERROR_BUFFER_OVERFLOW);
     }
@@ -56,13 +56,13 @@ size_t bin2dec(uint8_t *dst, size_t dstLength, uint64_t number) {
     return characterLength + 1;
 }
 
-static size_t decimalDigitsDisplay(uint8_t *dst,
-                                   size_t dstLength,
-                                   uint64_t decimalPart,
-                                   uint8_t decimalDigitsLength) {
+static size_t decimal_digits_display(uint8_t *dst,
+                                     size_t dstLength,
+                                     uint64_t decimalPart,
+                                     uint8_t decimalDigitsLength) {
     // Fill with zeroes if the number is less than decimalDigits,
     // so that input like 5304 become 005304 in their display version.
-    size_t length = lengthOfNumber(decimalPart);
+    size_t length = length_of_number(decimalPart);
     int zeroFillLength = decimalDigitsLength - length;
 
     if (zeroFillLength < 0 || dstLength < (size_t) zeroFillLength) {
@@ -85,15 +85,15 @@ static size_t decimalDigitsDisplay(uint8_t *dst,
         }
     }
 
-    return numberToText(dst + zeroFillLength, dstLength - zeroFillLength, decimalPart) +
+    return number_to_text(dst + zeroFillLength, dstLength - zeroFillLength, decimalPart) +
            zeroFillLength;
 }
 
-size_t decimalNumberToDisplay(uint8_t *dst,
-                              size_t dstLength,
-                              uint64_t amount,
-                              uint32_t resolution,
-                              uint8_t decimalDigitsLength) {
+size_t decimal_number_to_display(uint8_t *dst,
+                                 size_t dstLength,
+                                 uint64_t amount,
+                                 uint32_t resolution,
+                                 uint8_t decimalDigitsLength) {
     // In every case we need to write at least 2 characters (e.g. "0.")
     if (dstLength < MIN_DECIMAL_DISPLAY_LENGTH) {
         THROW(ERROR_BUFFER_OVERFLOW);
@@ -104,7 +104,7 @@ size_t decimalNumberToDisplay(uint8_t *dst,
         return 1;
     }
 
-    int length = lengthOfNumber(amount);
+    int length = length_of_number(amount);
 
     // If the amount is less than the resolution, then the
     // amount has to be prefixed by '0.' as it will purely consist
@@ -112,10 +112,10 @@ size_t decimalNumberToDisplay(uint8_t *dst,
     if (amount < resolution) {
         dst[0] = '0';
         dst[1] = '.';
-        return decimalDigitsDisplay(dst + 2,
-                                    dstLength - PREFIX_ZERO_DOT_LEN,
-                                    amount,
-                                    decimalDigitsLength) +
+        return decimal_digits_display(dst + 2,
+                                      dstLength - PREFIX_ZERO_DOT_LEN,
+                                      amount,
+                                      decimalDigitsLength) +
                2;
     }
 
@@ -144,10 +144,10 @@ size_t decimalNumberToDisplay(uint8_t *dst,
     if (decimalPart != 0) {
         dst[offset] = '.';
         offset += 1;
-        offset += decimalDigitsDisplay(dst + offset,
-                                       dstLength - offset,
-                                       decimalPart,
-                                       decimalDigitsLength);
+        offset += decimal_digits_display(dst + offset,
+                                         dstLength - offset,
+                                         decimalPart,
+                                         decimalDigitsLength);
     }
 
     // We check that we can fit the termination character
@@ -158,16 +158,16 @@ size_t decimalNumberToDisplay(uint8_t *dst,
     return offset;
 }
 
-size_t fractionToPercentageDisplay(uint8_t *dst, size_t dstLength, uint32_t number) {
+size_t fraction_to_percentage_display(uint8_t *dst, size_t dstLength, uint32_t number) {
     if (number > MAX_PERCENTAGE_NUMERATOR) {
         THROW(ERROR_INVALID_TRANSACTION);
     }
 
-    size_t offset = decimalNumberToDisplay(dst,
-                                           dstLength,
-                                           number,
-                                           PERCENTAGE_RESOLUTION,
-                                           PERCENTAGE_DECIMAL_PLACES);
+    size_t offset = decimal_number_to_display(dst,
+                                              dstLength,
+                                              number,
+                                              PERCENTAGE_RESOLUTION,
+                                              PERCENTAGE_DECIMAL_PLACES);
     if (dstLength < offset + PERCENTAGE_SUFFIX_LEN) {
         THROW(ERROR_BUFFER_OVERFLOW);
     }
@@ -181,12 +181,15 @@ size_t fractionToPercentageDisplay(uint8_t *dst, size_t dstLength, uint32_t numb
  * can displayed as GTU, i.e. not as the micro version, as it is easier
  * to relate to in the GUI.
  */
-size_t amountToGtuDisplay(uint8_t *dst, size_t dstLength, uint64_t microGtuAmount) {
+size_t amount_to_gtu_display(uint8_t *dst, size_t dstLength, uint64_t microGtuAmount) {
     if (dstLength < GTU_DISPLAY_LENGTH) {
         THROW(ERROR_BUFFER_OVERFLOW);
     }
-    size_t offset =
-        decimalNumberToDisplay(dst, dstLength, microGtuAmount, GTU_RESOLUTION, GTU_DECIMAL_PLACES);
+    size_t offset = decimal_number_to_display(dst,
+                                              dstLength,
+                                              microGtuAmount,
+                                              GTU_RESOLUTION,
+                                              GTU_DECIMAL_PLACES);
     if ((offset >= GTU_LINE_BREAK_MIN_OFFSET) && (offset < GTU_LINE_BREAK_MAX_OFFSET)) {
         memmove(dst + offset, "\nCCD\0", GTU_DISPLAY_LENGTH);
     } else {
@@ -196,7 +199,7 @@ size_t amountToGtuDisplay(uint8_t *dst, size_t dstLength, uint64_t microGtuAmoun
     return offset;
 }
 
-void toPaginatedHex(uint8_t *byteArray, const uint64_t len, char *asHex, const size_t asHexSize) {
+void to_paginated_hex(uint8_t *byteArray, const uint64_t len, char *asHex, const size_t asHexSize) {
     if (byteArray == NULL) {
         THROW(ERROR_INVALID_PARAM);
     }

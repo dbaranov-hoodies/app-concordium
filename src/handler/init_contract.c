@@ -34,7 +34,7 @@ void handle_init_contract(const command_t *cmd) {
             THROW(ERROR_FAILED_CX_OPERATION);
         }
 
-        size_t offset = parseKeyDerivationPath(cdata, lc);
+        size_t offset = parse_derivation_path(cdata, lc);
         if (offset > lc) {
             THROW(SWO_INCORRECT_DATA);
         }
@@ -55,9 +55,9 @@ void handle_init_contract(const command_t *cmd) {
         // extract the amount
         ctx_init_contract->amount = U8BE(cdata, 0);
         // Format the amount
-        amountToGtuDisplay((uint8_t *) ctx_init_contract->amountDisplay,
-                           sizeof(ctx_init_contract->amountDisplay),
-                           ctx_init_contract->amount);
+        amount_to_gtu_display((uint8_t *) ctx_init_contract->amountDisplay,
+                              sizeof(ctx_init_contract->amountDisplay),
+                              ctx_init_contract->amount);
         cdata += 8;
         remainingDataLength -= 8;
         if (remainingDataLength < 32) {

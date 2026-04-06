@@ -12,6 +12,7 @@
 #include "export_private_key_legacy_path.h"
 #include "export_private_key_new_path.h"
 #include "get_app_name.h"
+#include "get_app_version.h"
 #include "get_challenge.h"
 #include "get_public_key.h"
 #include "init_contract.h"

@@ -58,9 +58,6 @@ typedef enum {
 /** Credential deployment UI continuation; implementation in handler/sign_credential_deployment.c */
 void processNextVerificationKey(void);
 
-/** INS_APP_VERSION; implementation in handler/get_app_version.c */
-int handle_get_app_version(void);
-
 typedef struct internal_storage_t {
     uint8_t dummy1_allowed;
     uint8_t dummy2_allowed;

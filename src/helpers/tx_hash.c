@@ -22,7 +22,10 @@ static accountSender_t *accountSender = &global_account_sender;
  * Use hashAccountTransactionHeaderAndKind or hashUpdateHeaderAndType
  * instead of using this method directly.
  */
-static int hashHeaderAndType(uint8_t *cdata, uint8_t dataLength, uint8_t headerLength, uint8_t validType) {
+static int hashHeaderAndType(uint8_t *cdata,
+                             uint8_t dataLength,
+                             uint8_t headerLength,
+                             uint8_t validType) {
     if (dataLength < headerLength + 1) {
         PRINTF("Issue with length\n");
         THROW(ERROR_INVALID_TRANSACTION);
@@ -67,7 +70,7 @@ int handleHeaderAndToAddress(uint8_t *cdata,
                              size_t recipientSize,
                              uint8_t *feesDst,
                              size_t feesSize) {
-    size_t keyPathLength = parseKeyDerivationPath(cdata, dataLength);
+    size_t keyPathLength = parse_derivation_path(cdata, dataLength);
     cdata += keyPathLength;
     uint8_t remainingDataLength = dataLength - keyPathLength;
 
@@ -78,7 +81,7 @@ int handleHeaderAndToAddress(uint8_t *cdata,
 
     uint64_t energy_amount_u64 = U8BE(cdata, ENERGY_OFFSET_IN_HEADER);
 
-    amountToGtuDisplay((uint8_t *) feesDst, feesSize, energy_amount_u64);
+    amount_to_gtu_display((uint8_t *) feesDst, feesSize, energy_amount_u64);
 
     cdata += headerLength;
     remainingDataLength -= headerLength;
@@ -104,10 +107,10 @@ size_t hashAndLoadU64Ratio(uint8_t *cdata, uint8_t *dst, uint8_t sizeOfDst) {
     uint64_t numerator = U8BE(cdata, 0);
     uint64_t denominator = U8BE(cdata, 8);
     updateHash((cx_hash_t *) &tx_state->hash, cdata, U64_RATIO_BYTES);
-    int numLength = numberToText(dst, sizeOfDst, numerator);
+    int numLength = number_to_text(dst, sizeOfDst, numerator);
     memmove(dst + numLength, U64_RATIO_SEPARATOR, U64_RATIO_SEPARATOR_LEN);
-    numberToText(dst + numLength + U64_RATIO_SEPARATOR_LEN,
-                 sizeOfDst - (numLength + U64_RATIO_SEPARATOR_LEN),
-                 denominator);
+    number_to_text(dst + numLength + U64_RATIO_SEPARATOR_LEN,
+                   sizeOfDst - (numLength + U64_RATIO_SEPARATOR_LEN),
+                   denominator);
     return U64_RATIO_BYTES;
 }

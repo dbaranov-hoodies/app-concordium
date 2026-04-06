@@ -170,7 +170,7 @@ void detect_derivation_path_variant(derivation_path_t *derivation_path);
  * Parse path from CDATA prefix into global_derivation_path; returns bytes consumed.
  * Hardens nodes for crypto (SLIP-10). Bounded by 1 + DERIVATION_PATH_NODES_MAX*4.
  */
-size_t parseKeyDerivationPath(uint8_t *cdata, uint8_t dataLength);
+size_t parse_derivation_path(uint8_t *cdata, uint8_t dataLength);
 
 /**
  * Human-readable legacy identity/account path: "identity/account".

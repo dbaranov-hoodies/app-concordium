@@ -50,7 +50,7 @@ void handle_export_private_key_legacy_path(const command_t *cmd, volatile unsign
     size_t offset = 0;
     memmove(ctx->display_credid + offset, "ID#", 3);
     offset += 3;
-    bin2dec(ctx->display_credid + offset, sizeof(ctx->display_credid) - offset, identity);
+    bin_to_dec(ctx->display_credid + offset, sizeof(ctx->display_credid) - offset, identity);
 
     memmove(ctx->display_credid_title, "Credentials ID", EXPORT_PRIVATE_KEY_CREDID_TITLE_LEN);
     memmove(ctx->display_review_operation,

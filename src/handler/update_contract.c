@@ -33,7 +33,7 @@ void handle_update_contract(const command_t *cmd) {
         if (cx_sha256_init(&tx_state->hash) != CX_SHA256) {
             THROW(ERROR_FAILED_CX_OPERATION);
         }
-        size_t offset = parseKeyDerivationPath(cdata, lc);
+        size_t offset = parse_derivation_path(cdata, lc);
         if (offset > lc) {
             THROW(SWO_INCORRECT_DATA);
         }
@@ -53,9 +53,9 @@ void handle_update_contract(const command_t *cmd) {
         // extract the amount
         ctx_update_contract->amount = U8BE(cdata, 0);
         // Format the amount
-        amountToGtuDisplay((uint8_t *) ctx_update_contract->amountDisplay,
-                           sizeof(ctx_update_contract->amountDisplay),
-                           ctx_update_contract->amount);
+        amount_to_gtu_display((uint8_t *) ctx_update_contract->amountDisplay,
+                              sizeof(ctx_update_contract->amountDisplay),
+                              ctx_update_contract->amount);
         cdata += 8;
         remainingDataLength -= 8;
         // hash the index
@@ -66,9 +66,9 @@ void handle_update_contract(const command_t *cmd) {
         // extract the index
         uint64_t index = U8BE(cdata, 0);
         // format the index
-        numberToText((uint8_t *) ctx_update_contract->indexDisplay,
-                     sizeof(ctx_update_contract->indexDisplay),
-                     index);
+        number_to_text((uint8_t *) ctx_update_contract->indexDisplay,
+                       sizeof(ctx_update_contract->indexDisplay),
+                       index);
         cdata += 8;
         remainingDataLength -= 8;
 
@@ -80,9 +80,9 @@ void handle_update_contract(const command_t *cmd) {
         // extract the sub index
         uint64_t subIndex = U8BE(cdata, 0);
         // format the sub index
-        numberToText((uint8_t *) ctx_update_contract->subIndexDisplay,
-                     sizeof(ctx_update_contract->subIndexDisplay),
-                     subIndex);
+        number_to_text((uint8_t *) ctx_update_contract->subIndexDisplay,
+                       sizeof(ctx_update_contract->subIndexDisplay),
+                       subIndex);
 
         ctx_update_contract->state = UPDATE_CONTRACT_NAME_FIRST;
         send_success_no_idle();

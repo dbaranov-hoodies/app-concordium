@@ -21,9 +21,9 @@ static tx_state_t *tx_state = &global_tx_state;
  * Derive the public-key for the given path, and then write it to
  * the APDU buffer to be returned to the caller.
  */
-void sendPublicKey(bool compare) {
+void send_public_key(bool compare) {
     uint8_t publicKey[KEY_LENGTH];
-    getPublicKey(publicKey);
+    get_public_key(publicKey);
 
     // tx is holding the offset in the buffer we have written to. It is a convention to call this tx
     // for Ledger apps.
@@ -49,7 +49,7 @@ void sendPublicKey(bool compare) {
     if (compare) {
         // Show the public-key so that the user can verify the public-key.
         send_success_result_no_idle(tx);
-        toPaginatedHex(publicKey, sizeof(publicKey), ctx->publicKey, sizeof(ctx->publicKey));
+        to_paginated_hex(publicKey, sizeof(publicKey), ctx->publicKey, sizeof(ctx->publicKey));
         // Allow for receiving a new instruction even while comparing public keys.
         tx_state->currentInstruction = INSTRUCTION_NONE;
         uiComparePubkey();

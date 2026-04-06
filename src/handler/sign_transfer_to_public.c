@@ -36,7 +36,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
     }
     uint8_t remainingDataLength = dataLength;
     if (p1 == P1_INITIAL && ctx->state == TX_TRANSFER_TO_PUBLIC_INITIAL) {
-        size_t offset = parseKeyDerivationPath(cdata, remainingDataLength);
+        size_t offset = parse_derivation_path(cdata, remainingDataLength);
         if (offset > dataLength) {
             THROW(SWO_INCORRECT_DATA);
         }
@@ -67,7 +67,7 @@ void handle_sign_transfer_to_public(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         uint64_t amountToPublic = U8BE(cdata, 0);
-        amountToGtuDisplay(ctx->amount, sizeof(ctx->amount), amountToPublic);
+        amount_to_gtu_display(ctx->amount, sizeof(ctx->amount), amountToPublic);
         updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
         cdata += 8;
         remainingDataLength -= 8;

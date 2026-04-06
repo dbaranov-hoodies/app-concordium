@@ -39,7 +39,7 @@ void handle_sign_update_credential(const command_t *cmd,
     }
     uint8_t remainingDataLength = lc;
     if (p2 == P2_CREDENTIAL_INITIAL && ctx->updateCredentialState == TX_UPDATE_CREDENTIAL_INITIAL) {
-        uint8_t offset = parseKeyDerivationPath(dataBuffer, remainingDataLength);
+        uint8_t offset = parse_derivation_path(dataBuffer, remainingDataLength);
         dataBuffer += offset;
         remainingDataLength -= offset;
 
@@ -99,7 +99,7 @@ void handle_sign_update_credential(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 48);
-        toPaginatedHex(dataBuffer, 48, ctx->credentialId, sizeof(ctx->credentialId));
+        to_paginated_hex(dataBuffer, 48, ctx->credentialId, sizeof(ctx->credentialId));
 
         ctx->credentialIdCount -= 1;
         if (ctx->credentialIdCount == 0) {
@@ -113,7 +113,7 @@ void handle_sign_update_credential(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         uint8_t threshold = dataBuffer[0];
-        bin2dec(ctx->threshold, sizeof(ctx->threshold), threshold);
+        bin_to_dec(ctx->threshold, sizeof(ctx->threshold), threshold);
         updateHash((cx_hash_t *) &tx_state->hash, dataBuffer, 1);
 
         uiSignUpdateCredentialThresholdDisplay(flags);

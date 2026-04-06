@@ -36,7 +36,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
     uint8_t remainingDataLength = lc;
 
     if (p1 == P1_INITIAL && ctx->state == TX_PUBLIC_INFO_FOR_IP_INITIAL) {
-        uint8_t offset = parseKeyDerivationPath(cdata, remainingDataLength);
+        uint8_t offset = parse_derivation_path(cdata, remainingDataLength);
         cdata += offset;
         remainingDataLength -= offset;
         if (cx_sha256_init(&tx_state->hash) != CX_SHA256) {
@@ -106,7 +106,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
         }
         memmove(publicKey, cdata, 32);
         updateHash((cx_hash_t *) &tx_state->hash, publicKey, 32);
-        toPaginatedHex(publicKey, 32, ctx->publicKey, sizeof(ctx->publicKey));
+        to_paginated_hex(publicKey, 32, ctx->publicKey, sizeof(ctx->publicKey));
 
         ctx->publicKeysLength -= 1;
         if (ctx->publicKeysLength > 0) {
@@ -129,7 +129,7 @@ void handle_sign_public_information_for_ip(const command_t *cmd,
             THROW(SWO_INCORRECT_DATA);
         }
         updateHash((cx_hash_t *) &tx_state->hash, cdata, 1);
-        bin2dec(ctx->threshold, sizeof(ctx->threshold), cdata[0]);
+        bin_to_dec(ctx->threshold, sizeof(ctx->threshold), cdata[0]);
 
         if (ctx->showIntro) {
             // If the initial view has not been displayed yet, we display the entire flow

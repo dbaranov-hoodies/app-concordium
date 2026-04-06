@@ -22,7 +22,7 @@ void handle_get_public_key(const command_t *cmd, volatile unsigned int *flags) {
     uint8_t p2 = cmd->p2;
     uint8_t lc = cmd->lc;
 
-    parseKeyDerivationPath(cdata, lc);
+    parse_derivation_path(cdata, lc);
     derivation_path_t *dp = &global_derivation_path;
 
     // If P2 == P2_SIGN_PUBLIC_KEY, then the public-key is signed by its corresponding private key,
@@ -33,11 +33,11 @@ void handle_get_public_key(const command_t *cmd, volatile unsigned int *flags) {
     // If P1 == P1_SKIP_DISPLAY, then we skip displaying the key being exported. This is used when
     // it is not important for the user to validate the key.
     if (p1 == P1_SKIP_DISPLAY) {
-        sendPublicKey(false);
+        send_public_key(false);
         return;
     }
 
-    /* Display uses unhardened path indices; parseKeyDerivationPath leaves hardened nodes for
+    /* Display uses unhardened path indices; parse_derivation_path leaves hardened nodes for
      * crypto. */
     unharden_derivation_path(dp);
 

@@ -31,7 +31,7 @@ void handle_deploy_module(const command_t *cmd) {
         if (cx_sha256_init(&tx_state->hash) != CX_SHA256) {
             THROW(ERROR_FAILED_CX_OPERATION);
         }
-        size_t offset = parseKeyDerivationPath(cdata, lc);
+        size_t offset = parse_derivation_path(cdata, lc);
         if (offset > lc) {
             THROW(SWO_INCORRECT_DATA);
         }
@@ -53,9 +53,9 @@ void handle_deploy_module(const command_t *cmd) {
         ctx_deploy_module->sourceLength = U4BE(cdata, 4);
         ctx_deploy_module->remainingSourceLength = ctx_deploy_module->sourceLength;
 
-        numberToText((uint8_t *) ctx_deploy_module->versionDisplay,
-                     sizeof(ctx_deploy_module->versionDisplay),
-                     ctx_deploy_module->version);
+        number_to_text((uint8_t *) ctx_deploy_module->versionDisplay,
+                       sizeof(ctx_deploy_module->versionDisplay),
+                       ctx_deploy_module->version);
         send_success_no_idle();
     }
 

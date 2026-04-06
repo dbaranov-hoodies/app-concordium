@@ -25,7 +25,7 @@ static exportPrivateKeyContext_t *ctx = &global.exportPrivateKeyContext;
  * is dropped from the cursor so the buffer can be concatenated safely.
  */
 static size_t append_dec(uint8_t *buf, size_t cap, size_t off, uint64_t n, bool more_follows) {
-    size_t step = bin2dec(buf + off, cap - off, n);
+    size_t step = bin_to_dec(buf + off, cap - off, n);
     return off + step - (more_follows ? 1U : 0U);
 }
 

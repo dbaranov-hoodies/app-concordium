@@ -57,7 +57,7 @@ UX_STEP_VALID(ux_decline_step, pb, send_user_rejection(), {&C_icon_crossmark, "D
 // accept that a public-key will be generated and returned to the computer.
 UX_STEP_VALID(ux_generate_public_flow_0_step,
               pnn,
-              sendPublicKey(true),
+              send_public_key(true),
               {&C_icon_validate_14, "Public key", (char *) global.exportPublicKeyContext.display});
 UX_FLOW(ux_generate_public_flow, &ux_generate_public_flow_0_step, &ux_decline_step, FLOW_LOOP);
 

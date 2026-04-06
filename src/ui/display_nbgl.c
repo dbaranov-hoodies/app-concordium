@@ -32,7 +32,7 @@ static void review_choice(bool confirm) {
 static void review_public_key_choice(bool confirm) {
     // Answer, display a status page and go back to main
     if (confirm) {
-        sendPublicKey(true);
+        send_public_key(true);
     } else {
         send_user_rejection();
     }

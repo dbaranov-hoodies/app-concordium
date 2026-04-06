@@ -100,7 +100,7 @@ void getPrivateKey(const derivation_path_t *path, cx_ecfp_private_key_t *private
     END_TRY;
 }
 
-void getPublicKey(uint8_t *publicKeyArray) {
+void get_public_key(uint8_t *publicKeyArray) {
     cx_ecfp_private_key_t privateKey;
     cx_ecfp_public_key_t publicKey;
 

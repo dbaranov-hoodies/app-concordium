@@ -24,7 +24,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
     uint8_t *cdata = cmd->data;
     uint8_t dataLength = cmd->lc;
 
-    int keyDerivationPathLength = parseKeyDerivationPath(cdata, dataLength);
+    int keyDerivationPathLength = parse_derivation_path(cdata, dataLength);
     if (keyDerivationPathLength > dataLength) {
         THROW(SWO_INCORRECT_DATA);
     }
@@ -70,7 +70,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
             ctx->stopDelegation = true;
         } else {
             ctx->stopDelegation = false;
-            amountToGtuDisplay(ctx->displayCapital, sizeof(ctx->displayCapital), capitalAmount);
+            amount_to_gtu_display(ctx->displayCapital, sizeof(ctx->displayCapital), capitalAmount);
         }
         updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
         expectedDataLength += 8;
@@ -114,7 +114,7 @@ void handle_sign_configure_delegation(const command_t *cmd, volatile unsigned in
             uint64_t bakerId = U8BE(cdata, 0);
             expectedDataLength += 8;
             memmove(ctx->displayDelegationTarget, "Baker ID ", 9);
-            bin2dec(ctx->displayDelegationTarget + 9, 21, bakerId);
+            bin_to_dec(ctx->displayDelegationTarget + 9, 21, bakerId);
             updateHash((cx_hash_t *) &tx_state->hash, cdata, 8);
         } else {
             THROW(ERROR_INVALID_TRANSACTION);

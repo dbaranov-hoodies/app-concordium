@@ -10,7 +10,7 @@
  * P2: 0x00 = public key only; P2_SIGN_PUBLIC_KEY = append signature on the key.
  * INS handler: handle_get_public_key() in get_public_key.c.
  */
-void sendPublicKey(bool compare);
+void send_public_key(bool compare);
 
 typedef struct {
     uint8_t display[21];
