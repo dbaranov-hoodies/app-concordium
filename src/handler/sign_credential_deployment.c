@@ -97,7 +97,6 @@ void handle_sign_credential_deployment(const command_t *cmd,
     uint8_t p1 = cmd->p1;
     uint8_t p2 = cmd->p2;
     uint8_t lc = cmd->lc;
-
     if (isInitialCall) {
         ctx->state = TX_CREDENTIAL_DEPLOYMENT_INITIAL;
     }
