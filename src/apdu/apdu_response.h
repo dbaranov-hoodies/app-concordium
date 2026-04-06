@@ -3,7 +3,8 @@
 #include <stdint.h>
 
 /**
- * Send a user rejection back to the caller (SWO_CONDITIONS_NOT_SATISFIED), then return to main menu.
+ * Send a user rejection back to the caller (SWO_CONDITIONS_NOT_SATISFIED), then return to main
+ * menu.
  */
 void send_user_rejection(void);
 

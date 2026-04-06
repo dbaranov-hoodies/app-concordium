@@ -143,7 +143,9 @@ void update_hash(cx_hash_t *hashContext, const unsigned char *in, unsigned int l
     hash(hashContext, 0, in, len, NULL, 0);
 }
 
-void get_bls_private_key(const derivation_path_t *path, uint8_t *privateKey, size_t privateKeySize) {
+void get_bls_private_key(const derivation_path_t *path,
+                         uint8_t *privateKey,
+                         size_t privateKeySize) {
     cx_ecfp_private_key_t privateKeySeed;
     BEGIN_TRY {
         TRY {

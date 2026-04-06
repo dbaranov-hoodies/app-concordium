@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 /** Raw account address size (bytes before base58check). */
-#define ADDRESS_LENGTH        32
+#define ADDRESS_LENGTH 32
 /** Display size for base58check account address string (incl. nul in app buffers). */
 #define BASE58_ADDRESS_LENGTH 55
 

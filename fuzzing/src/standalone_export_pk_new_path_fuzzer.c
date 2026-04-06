@@ -111,7 +111,9 @@ void get_private_key(const derivation_path_t *path, uint8_t *privateKey) {
     }
 }
 
-void get_bls_private_key(const derivation_path_t *path, uint8_t *privateKey, size_t privateKeySize) {
+void get_bls_private_key(const derivation_path_t *path,
+                         uint8_t *privateKey,
+                         size_t privateKeySize) {
     (void) privateKeySize;
     printf("MOCK get_bls_private_key: path_length=%d\n", path->len);
     if (privateKey) {
