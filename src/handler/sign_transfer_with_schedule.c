@@ -27,21 +27,23 @@ void handle_sign_transfer_with_schedule(const command_t *cmd,
     uint8_t *cdata = cmd->data;
     uint8_t p1 = cmd->p1;
     uint8_t lc = cmd->lc;
+    uint8_t remainingDataLength = lc;
 
     if (isInitialCall) {
         ctx->state = TX_TRANSFER_WITH_SCHEDULE_INITIAL;
     }
 
     if (p1 == P1_INITIAL_PACKET && ctx->state == TX_TRANSFER_WITH_SCHEDULE_INITIAL) {
-        cdata += handleHeaderAndToAddress(cdata,
-                                          lc,
-                                          TRANSFER_WITH_SCHEDULE,
-                                          ctx->displayStr,
-                                          sizeof(ctx->displayStr),
-                                          ctx->energy_amount_str,
-                                          sizeof(ctx->energy_amount_str));
-
-        if (lc < 1) {
+        uint8_t offset = handleHeaderAndToAddress(cdata,
+                                                  remainingDataLength,
+                                                  TRANSFER_WITH_SCHEDULE,
+                                                  ctx->displayStr,
+                                                  sizeof(ctx->displayStr),
+                                                  ctx->energy_amount_str,
+                                                  sizeof(ctx->energy_amount_str));
+        cdata += offset;
+        remainingDataLength -= offset;
+        if (remainingDataLength < 1) {
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->remainingNumberOfScheduledAmounts = cdata[0];

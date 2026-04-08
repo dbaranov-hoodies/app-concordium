@@ -31,29 +31,29 @@ void handle_sign_transfer_with_schedule_and_memo(const command_t *cmd,
     uint8_t *cdata = cmd->data;
     uint8_t p1 = cmd->p1;
     uint8_t dataLength = cmd->lc;
+    uint8_t remainingDataLength = dataLength;
 
     if (isInitialCall) {
         ctx->state = TX_TRANSFER_WITH_SCHEDULE_INITIAL;
     }
 
     if (p1 == P1_INITIAL_WITH_MEMO && ctx->state == TX_TRANSFER_WITH_SCHEDULE_INITIAL) {
-        cdata += handleHeaderAndToAddress(cdata,
-                                          dataLength,
-                                          TRANSFER_WITH_SCHEDULE_WITH_MEMO,
-                                          ctx->displayStr,
-                                          sizeof(ctx->displayStr),
-                                          ctx->energy_amount_str,
-                                          sizeof(ctx->energy_amount_str));
-
-        if (dataLength < 1) {
+        uint8_t offset = handleHeaderAndToAddress(cdata,
+                                                  remainingDataLength,
+                                                  TRANSFER_WITH_SCHEDULE_WITH_MEMO,
+                                                  ctx->displayStr,
+                                                  sizeof(ctx->displayStr),
+                                                  ctx->energy_amount_str,
+                                                  sizeof(ctx->energy_amount_str));
+        cdata += offset;
+        remainingDataLength -= offset;
+        /* 1 byte: scheduled amount count; 2 bytes: memo CBOR length (U2BE) */
+        if (remainingDataLength < 3) {
             THROW(SWO_INCORRECT_DATA);
         }
         ctx->remainingNumberOfScheduledAmounts = cdata[0];
         cdata += 1;
 
-        if (dataLength < 2) {
-            THROW(SWO_INCORRECT_DATA);
-        }
         memo_ctx->cborLength = U2BE(cdata, 0);
         if (memo_ctx->cborLength > MAX_MEMO_CBOR_SIZE) {
             THROW(ERROR_INVALID_PARAM);

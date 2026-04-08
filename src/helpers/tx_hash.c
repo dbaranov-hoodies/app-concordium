@@ -101,21 +101,6 @@ int handleHeaderAndToAddress(uint8_t *cdata,
     return keyPathLength + headerLength + ADDRESS_LENGTH;
 }
 
-#define U64_RATIO_SEPARATOR     " / "
-#define U64_RATIO_SEPARATOR_LEN 3
-
-size_t hashAndLoadU64Ratio(uint8_t *cdata, uint8_t *dst, uint8_t sizeOfDst) {
-    uint64_t numerator = U8BE(cdata, 0);
-    uint64_t denominator = U8BE(cdata, 8);
-    update_hash((cx_hash_t *) &tx_state->hash, cdata, U64_RATIO_BYTES);
-    int numLength = number_to_text(dst, sizeOfDst, numerator);
-    memmove(dst + numLength, U64_RATIO_SEPARATOR, U64_RATIO_SEPARATOR_LEN);
-    number_to_text(dst + numLength + U64_RATIO_SEPARATOR_LEN,
-                   sizeOfDst - (numLength + U64_RATIO_SEPARATOR_LEN),
-                   denominator);
-    return U64_RATIO_BYTES;
-}
-
 // Hashes transaction, signs it and sends the signature back to the computer.
 void buildAndSignTransactionHash(void) {
     hash((cx_hash_t *) &tx_state->hash, CX_LAST, NULL, 0, tx_state->transactionHash, KEY_LENGTH);

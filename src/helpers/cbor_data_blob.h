@@ -26,5 +26,5 @@ void readCborContent(uint8_t *cdata, uint8_t dataLength);
 /** CBOR memo / register-data payload bounds (see readCborInitial, transfer handlers). */
 #define CBOR_2BYTE_HEADER    2
 #define MAX_MEMO_STRING_SIZE 255
-#define MAX_MEMO_CBOR_SIZE   CBOR_2BYTE_HEADER + MAX_MEMO_STRING_SIZE
+#define MAX_MEMO_CBOR_SIZE   ((CBOR_2BYTE_HEADER) + (MAX_MEMO_STRING_SIZE))
 #define MAX_DATA_SIZE        (MAX_MEMO_CBOR_SIZE)
