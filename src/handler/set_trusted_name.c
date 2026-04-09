@@ -238,6 +238,10 @@ static bool verify_fields(const trustedNameTlvExtracted_t *ctx) {
         PRINTF("Wrong signer key id %u (expected %u)\n", ctx->signer_key_id, valid_key_id);
         return false;
     }
+    if (ctx->address.size != KEY_LENGTH) {
+        PRINTF("Tag 0x22 must be %u bytes (Ed25519 public key)\n", KEY_LENGTH);
+        return false;
+    }
     return true;
 }
 
