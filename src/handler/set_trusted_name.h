@@ -9,7 +9,8 @@
 
 /** Tag 0x20: certified display string (UTF-8, e.g. Concordium ccd_context_address). */
 extern char g_trusted_name[TRUSTED_NAME_MAX_LEN + 1];
-/** Tag 0x22: account public key bytes (32 B Ed25519); VERIFY_ADDRESS binds the derivation path to this. */
+/** Tag 0x22: account public key bytes (32 B Ed25519); VERIFY_ADDRESS binds the derivation path to
+ * this. */
 extern uint8_t g_trusted_address[TRUSTED_ADDRESS_MAX_SIZE];
 extern uint8_t g_trusted_address_len;
 extern bool g_trusted_name_valid;
