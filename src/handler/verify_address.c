@@ -13,6 +13,7 @@
 #include "app_sizes.h"
 #include "base58check.h"
 #include "derivation_path.h"
+#include "set_trusted_name.h"
 
 #include "verify_address.h"
 
@@ -267,6 +268,8 @@ void handle_verify_address(const command_t *cmd, volatile unsigned int *flags) {
         uint8_t derived_ed25519_pub[KEY_LENGTH];
         get_public_key(derived_ed25519_pub);
         pki_bind_descriptor(derived_ed25519_pub);
+        /* Single-use: display copy is in ctx->address; drop binding until next SET_TRUSTED_NAME. */
+        clear_trusted_name_binding();
     } else {
         bls_compute_address(cred_counter);
     }

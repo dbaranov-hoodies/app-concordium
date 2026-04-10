@@ -287,6 +287,13 @@ void trusted_name_send_set_error(uint16_t sw) {
     io_send_sw(sw);
 }
 
+void clear_trusted_name_binding(void) {
+    explicit_bzero(g_trusted_name, sizeof(g_trusted_name));
+    explicit_bzero(g_trusted_address, sizeof(g_trusted_address));
+    g_trusted_address_len = 0;
+    g_trusted_name_valid = false;
+}
+
 void handle_set_trusted_name(const command_t *cmd) {
     uint8_t *cdata = cmd->data;
     uint8_t p1 = cmd->p1;

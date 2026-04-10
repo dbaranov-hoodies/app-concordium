@@ -29,4 +29,8 @@ extern bool g_trusted_name_valid;
  */
 void trusted_name_send_set_error(uint16_t sw);
 
+/** Zero trusted-name binding (name, address bytes, valid flag). Used at app init and after
+ * VERIFY_ADDRESS consumes it. */
+void clear_trusted_name_binding(void);
+
 void handle_set_trusted_name(const command_t *cmd);
