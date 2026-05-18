@@ -228,6 +228,7 @@ void handle_verify_address(const command_t *cmd, volatile unsigned int *flags) {
     uint32_t cred_counter = 0;
 
     explicit_bzero(ctx->address, sizeof(ctx->address));
+    ctx->show_identity = (p1 != P1_FULL_PATH);
 
     parse_key_path(cdata, p1, p2, lc, derivation_path, &cred_counter);
 
@@ -254,7 +255,6 @@ void handle_verify_address(const command_t *cmd, volatile unsigned int *flags) {
                              derivation_path->nodes[2],
                              derivation_path->nodes[3],
                              derivation_path->nodes[4]);
-
             break;
 
         default:
