@@ -201,6 +201,7 @@ typedef struct {
     /** Without trusted descriptor: path-derived base58. With PKI descriptor: tag 0x20 UTF-8 (cert).
      */
     char address[TRUSTED_NAME_MAX_LEN + 1];
+    bool show_identity;
 } verifyAddressContext_t;
 
 typedef enum {

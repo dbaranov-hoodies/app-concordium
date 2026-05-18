@@ -1177,9 +1177,11 @@ void uiSignScheduledTransferPairFlowSignDisplay(void) {
 
 void uiVerifyAddress(volatile unsigned int *flags) {
     uint8_t index = 0;
-    pairs[index].item = "Identity";
-    pairs[index].value = (char *) global.verifyAddressContext.display;
-    index++;
+    if (global.verifyAddressContext.show_identity) {
+        pairs[index].item = "Identity";
+        pairs[index].value = (char *) global.verifyAddressContext.display;
+        index++;
+    }
 
     // Create the page content
     nbgl_contentTagValueList_t content;

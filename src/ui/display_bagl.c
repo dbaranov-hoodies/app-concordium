@@ -99,8 +99,17 @@ UX_FLOW(ux_verify_address,
         &ux_verify_address_approve_step,
         &ux_verify_address_reject_step);
 
+UX_FLOW(ux_verify_address_no_identity,
+        &ux_verify_address_1_step,
+        &ux_verify_address_approve_step,
+        &ux_verify_address_reject_step);
+
 void uiVerifyAddress(volatile unsigned int *flags) {
-    ux_flow_init(0, ux_verify_address, NULL);
+    if (global.verifyAddressContext.show_identity) {
+        ux_flow_init(0, ux_verify_address, NULL);
+    } else {
+        ux_flow_init(0, ux_verify_address_no_identity, NULL);
+    }
     *flags |= IO_ASYNCH_REPLY;
 }
 
